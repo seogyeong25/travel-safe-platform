@@ -2,25 +2,33 @@ package com.safetravel.travel_safe_platform.controller;
 
 import com.safetravel.travel_safe_platform.entity.Region;
 import com.safetravel.travel_safe_platform.service.RegionService;
-import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/regions")
 public class RegionController {
 
+    // Service 연결
     private final RegionService regionService;
 
+    // 생성자 주입
     public RegionController(RegionService regionService) {
         this.regionService = regionService;
     }
 
-    // 지역 검색
-    @GetMapping("/search")
-    public List<Region> searchRegion(
-            @RequestParam String keyword) {  // 검색어 받아오기, URL에서 keyword 값 꺼내오기
+    // 지역 검색 API
+    // 예시:
+    // localhost:8080/regions/search?keyword=강남
 
-        return regionService.searchRegion(keyword);
+    @GetMapping("/regions/search")
+    public List<Region> searchRegions(
+            @RequestParam String keyword
+    ) {
+
+        return regionService.searchRegions(keyword);
     }
 }

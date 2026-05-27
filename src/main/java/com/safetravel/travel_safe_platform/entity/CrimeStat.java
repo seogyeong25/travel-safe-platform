@@ -34,4 +34,7 @@ public class CrimeStat {
 
     // 위험도 점수
     private Double riskScore;
+
+    // ⬇️ 머신러닝 엔지니어분이 가공해 준 '범죄 비율'을 저장하기 위해 이 줄을 추가해 주세요!
+    private Double crimeRatio;
 }

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>범죄 예방 가이드 - SafeTrip</title>
+
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="guide.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="logo">
+    <i data-lucide="shield-check"></i>
+    <span>SAFE TRIP</span>
+  </div>
+
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="#">지역 검색</a>
+    <a href="#">안전 리포트</a>
+    <a href="#">지도</a>
+    <a href="guide.html" class="active">예방 가이드</a>
+    <a href="board.html">신고 게시판</a>
+  </nav>
+
+  <a href="login.html" class="login-btn">로그인</a>
+</header>
+
+<main class="guide-page">
+
+  <aside class="guide-sidebar">
+    <h3>범죄 유형 선택</h3>
+
+    <button class="tab active" data-type="theft">절도</button>
+    <button class="tab" data-type="violence">폭력</button>
+    <button class="tab" data-type="sexual">성범죄</button>
+    <button class="tab" data-type="pickpocket">소매치기</button>
+    <button class="tab" data-type="night">야간 안전</button>
+    <button class="tab" data-type="traffic">교통사고</button>
+    <button class="tab" data-type="etc">기타</button>
+  </aside>
+
+  <section class="guide-content">
+    <p class="page-label">SAFETY GUIDE</p>
+    <h1 id="guideTitle">절도 예방 가이드</h1>
+    <p id="guideDesc" class="guide-desc">
+      여행 중 절도 피해를 예방하기 위한 수칙입니다.
+    </p>
+
+    <div id="guideList" class="guide-list"></div>
+
+    <div class="emergency-box">
+      <i data-lucide="shield-alert"></i>
+      <strong>위급 상황 발생 시 112로 신고해주세요.</strong>
+    </div>
+  </section>
+
+</main>
+
+<script src="guide.js"></script>
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>

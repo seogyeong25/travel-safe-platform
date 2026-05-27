@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface RegionRepository extends JpaRepository<Region, Long> {
 
-    List<Region> findBysidoContaining(String keyword);  // sido 안에 keyword 포함된 지역 찾기
+    // sigungu(시군구) 포함 검색
+    List<Region> findBySigunguContaining(String keyword);
 }

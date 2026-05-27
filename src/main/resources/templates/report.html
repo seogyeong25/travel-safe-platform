@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>안전 리포트 | SAFE TRIP</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/report.css"/>
+
+  <!-- 아이콘 -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+</head>
+
+<body>
+
+<!-- 헤더 -->
+<header class="header">
+
+  <div class="logo">
+    <i class="fa-solid fa-shield-halved"></i>
+    <span>SAFE TRIP</span>
+  </div>
+
+  <nav class="nav">
+    <a href="/">홈</a>
+    <a href="#">지역 검색</a>
+    <a href="#" class="active">안전 리포트</a>
+    <a href="#">지도</a>
+    <a href="#">예방 가이드</a>
+    <a href="#">신고 게시판</a>
+  </nav>
+
+  <a href="/users/login" class="login-btn">
+    로그인
+  </a>
+
+</header>
+
+<main class="report-page">
+
+  <!-- 상단 -->
+  <section class="top-banner">
+
+    <div>
+      <p class="sub-title">SAFETY REPORT</p>
+
+      <h1>부산 해운대구 안전 리포트</h1>
+
+      <p class="desc">
+        범죄 현황, CCTV 위치, 치안시설 데이터를 기반으로
+        여행지 안전 정보를 제공합니다.
+      </p>
+    </div>
+
+    <button class="search-btn">
+      다른 지역 검색
+    </button>
+
+  </section>
+
+  <!-- 메인 그리드 -->
+  <section class="main-grid">
+
+    <!-- 안전 점수 -->
+    <div class="score-card card">
+
+      <div class="circle-wrap">
+        <div class="circle">
+          <h2>74</h2>
+          <span>/100</span>
+        </div>
+      </div>
+
+      <div class="score-info">
+        <p>안전도 점수</p>
+
+        <h3>보통 단계</h3>
+
+        <span class="safe-badge">
+          안전도 보통
+        </span>
+      </div>
+
+    </div>
+
+    <!-- 지도 -->
+    <div class="map-card card">
+
+      <div class="map-top">
+        <h3>위험 지역 지도</h3>
+        <span>실시간 기반 시각화</span>
+      </div>
+
+      <div class="fake-map">
+
+        <div class="danger-zone"></div>
+
+        <div class="marker red" style="top:20%; left:65%;">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+
+        <div class="marker blue" style="top:40%; left:30%;">
+          <i class="fa-solid fa-shield"></i>
+        </div>
+
+        <div class="marker blue" style="top:62%; left:55%;">
+          <i class="fa-solid fa-video"></i>
+        </div>
+
+        <div class="marker red" style="top:68%; left:75%;">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- 통계 카드 -->
+  <section class="info-grid">
+
+    <div class="mini-card">
+      <div class="icon-box">
+        <i class="fa-solid fa-video"></i>
+      </div>
+
+      <p>CCTV</p>
+      <h2>128대</h2>
+    </div>
+
+    <div class="mini-card">
+      <div class="icon-box">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+
+      <p>경찰서 / 지구대</p>
+      <h2>6곳</h2>
+    </div>
+
+    <div class="mini-card">
+      <div class="icon-box">
+        <i class="fa-regular fa-message"></i>
+      </div>
+
+      <p>최근 신고</p>
+      <h2>12건</h2>
+    </div>
+
+    <div class="mini-card">
+      <div class="icon-box">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+
+      <p>주의 지역</p>
+      <h2>4곳</h2>
+    </div>
+
+  </section>
+
+  <!-- 하단 -->
+  <section class="bottom-grid">
+
+    <!-- 범죄 TOP -->
+    <div class="crime-card card">
+
+      <div class="card-title">
+        <h2>주요 범죄 유형 TOP 3</h2>
+      </div>
+
+      <div class="crime-list">
+
+        <div class="crime-item">
+          <div class="left">
+            <span class="rank">1</span>
+            <p>절도</p>
+          </div>
+
+          <strong>42%</strong>
+        </div>
+
+        <div class="crime-item">
+          <div class="left">
+            <span class="rank">2</span>
+            <p>폭력</p>
+          </div>
+
+          <strong>28%</strong>
+        </div>
+
+        <div class="crime-item">
+          <div class="left">
+            <span class="rank">3</span>
+            <p>성범죄</p>
+          </div>
+
+          <strong>15%</strong>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 최근 신고 게시글 -->
+    <div class="report-card card">
+
+      <div class="card-title">
+        <h2>최근 신고 게시글</h2>
+      </div>
+
+      <!-- 여기에 DB 데이터 자동 출력 -->
+      <div id="report-list"></div>
+
+    </div>
+
+  </section>
+
+</main>
+
+<!-- JavaScript -->
+<script>
+
+  async function loadReports() {
+
+    try {
+
+      // Spring 서버에 신고글 요청
+      const response = await fetch("/reports");
+
+      // JSON 데이터 받기
+      const reports = await response.json();
+
+      // report-list div 가져오기
+      const reportList = document.getElementById("report-list");
+
+      // 기존 내용 비우기
+      reportList.innerHTML = "";
+
+      // 신고글 반복 출력
+      reports.forEach(report => {
+
+        reportList.innerHTML += `
+
+          <div class="report-item">
+
+            <h4>${report.title}</h4>
+
+            <p>
+              위험도 : ${report.dangerLevel}
+            </p>
+
+          </div>
+
+        `;
+      });
+
+    } catch (error) {
+
+      console.error("신고글 불러오기 실패:", error);
+
+    }
+
+  }
+
+  // 페이지 열리면 자동 실행
+  loadReports();
+
+</script>
+
+</body>
+</html>

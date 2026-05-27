@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지도 | SAFE TRIP</title>
+
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="map.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="logo">
+    <i data-lucide="shield-check"></i>
+    <span>SAFE TRIP</span>
+  </div>
+
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="#">지역 검색</a>
+    <a href="report.html">안전 리포트</a>
+    <a href="map.html" class="active">지도</a>
+    <a href="guide.html">예방 가이드</a>
+    <a href="board.html">신고 게시판</a>
+  </nav>
+
+  <a href="login.html" class="login-btn">로그인</a>
+</header>
+
+<main class="map-page">
+
+  <section class="map-header">
+    <div>
+      <p>SAFETY MAP</p>
+      <h1>여행지 안전 지도</h1>
+      <span>CSV 기반 CCTV, 경찰서, 지구대, 위험 제보 위치를 지도 형태로 시각화합니다.</span>
+    </div>
+
+    <div class="map-search">
+      <input type="text" placeholder="지역을 검색하세요 예) 부산 해운대구">
+      <button>
+        <i data-lucide="search"></i>
+      </button>
+    </div>
+  </section>
+
+  <section class="map-layout">
+
+    <aside class="map-sidebar">
+
+      <div class="filter-box">
+        <h3>지도 정보 선택</h3>
+
+        <label>
+          <input type="checkbox" checked>
+          <span class="dot blue"></span>
+          CCTV
+        </label>
+
+        <label>
+          <input type="checkbox" checked>
+          <span class="dot navy"></span>
+          경찰서 / 지구대
+        </label>
+
+        <label>
+          <input type="checkbox" checked>
+          <span class="dot red"></span>
+          위험 제보
+        </label>
+
+        <label>
+          <input type="checkbox">
+          <span class="dot orange"></span>
+          주의 지역
+        </label>
+      </div>
+
+      <div class="filter-box">
+        <h3>위험도 단계</h3>
+
+        <div class="risk-row">
+          <span class="risk very"></span>
+          매우 높음
+        </div>
+
+        <div class="risk-row">
+          <span class="risk high"></span>
+          높음
+        </div>
+
+        <div class="risk-row">
+          <span class="risk normal"></span>
+          보통
+        </div>
+
+        <div class="risk-row">
+          <span class="risk low"></span>
+          낮음
+        </div>
+      </div>
+
+      <div class="region-summary">
+        <p>현재 선택 지역</p>
+        <h2>부산 해운대구</h2>
+
+        <div class="summary-item">
+          <span>CCTV</span>
+          <strong>128대</strong>
+        </div>
+
+        <div class="summary-item">
+          <span>경찰서 / 지구대</span>
+          <strong>6곳</strong>
+        </div>
+
+        <div class="summary-item">
+          <span>최근 제보</span>
+          <strong>12건</strong>
+        </div>
+      </div>
+
+    </aside>
+
+    <section class="map-area">
+
+      <div class="fake-map">
+
+        <div class="map-road road1"></div>
+        <div class="map-road road2"></div>
+        <div class="map-road road3"></div>
+        <div class="map-road road4"></div>
+
+        <div class="water-area"></div>
+        <div class="park-area park1"></div>
+        <div class="park-area park2"></div>
+
+        <div class="heat heat1"></div>
+        <div class="heat heat2"></div>
+
+        <button class="map-marker cctv" style="top: 23%; left: 34%;">
+          <i data-lucide="video"></i>
+        </button>
+
+        <button class="map-marker police" style="top: 37%; left: 58%;">
+          <i data-lucide="shield"></i>
+        </button>
+
+        <button class="map-marker danger" style="top: 52%; left: 43%;">
+          <i data-lucide="triangle-alert"></i>
+        </button>
+
+        <button class="map-marker cctv" style="top: 64%; left: 67%;">
+          <i data-lucide="video"></i>
+        </button>
+
+        <button class="map-marker police" style="top: 72%; left: 28%;">
+          <i data-lucide="shield"></i>
+        </button>
+
+        <button class="map-marker danger" style="top: 30%; left: 74%;">
+          <i data-lucide="triangle-alert"></i>
+        </button>
+
+        <div class="place-card">
+          <div class="place-top">
+            <h3>해운대 지구대</h3>
+            <span>경찰서 / 지구대</span>
+          </div>
+
+          <p>부산 해운대구 중동 1378-2</p>
+
+          <div class="place-info">
+            <span>CSV 좌표 데이터 기반</span>
+            <strong>상세정보</strong>
+          </div>
+        </div>
+
+        <div class="zoom-control">
+          <button>+</button>
+          <button>-</button>
+        </div>
+
+      </div>
+
+    </section>
+
+  </section>
+
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>
