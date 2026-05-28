@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>신고 게시판 - SafeTrip</title>
+  <link rel="stylesheet"
+        th:href="@{/css/index.css}">
+  <link rel="stylesheet"
+        th:href="@{/css/board.css}">
 
-  <link rel="stylesheet" href="index.css">
-  <link rel="stylesheet" href="board.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -17,15 +20,25 @@
   </div>
 
   <nav>
-    <a href="index.html">홈</a>
-    <a href="#">지역 검색</a>
-    <a href="#">안전 리포트</a>
-    <a href="#">지도</a>
-    <a href="#">예방 가이드</a>
-    <a href="board.html" class="active">신고 게시판</a>
+    <a th:href="@{/}">홈</a>
+
+    <a th:href="@{/region}">지역 검색</a>
+
+    <a th:href="@{/report}">안전 리포트</a>
+
+    <a th:href="@{/map}">지도</a>
+
+    <a th:href="@{/guide}">예방 가이드</a>
+
+    <a th:href="@{/board}" class="active">
+      신고 게시판
+    </a>
+
+    <a th:href="@{/users/login}" class="login-btn">
+      로그인
+    </a>
   </nav>
 
-  <a href="login.html" class="login-btn">로그인</a>
 </header>
 
 <main class="board-page">
@@ -37,10 +50,10 @@
       <span>위험 장소, 불안 요소, 안전 관련 정보를 공유하는 공간입니다.</span>
     </div>
 
-    <button class="write-btn">
+    <a th:href="@{/board/write}" class="write-btn">
       <i data-lucide="pen-line"></i>
       글쓰기
-    </button>
+    </a>
   </section>
 
   <section class="board-toolbar">
@@ -76,55 +89,32 @@
       </thead>
 
       <tbody>
-        <tr>
-          <td>126</td>
-          <td><span class="badge danger">위험 지역</span></td>
-          <td class="post-title">해운대역 근처 골목길 야간 통행 주의</td>
-          <td>부산 해운대구</td>
-          <td>여행자1</td>
-          <td>2024.05.20</td>
-          <td>32</td>
-        </tr>
 
-        <tr>
-          <td>125</td>
-          <td><span class="badge dark">어두운 골목</span></td>
-          <td class="post-title">서면 번화가 뒤편 골목 조명 부족</td>
-          <td>부산 부산진구</td>
-          <td>사용자2</td>
-          <td>2024.05.19</td>
-          <td>45</td>
-        </tr>
+      <tr th:each="report : ${reports}">
 
-        <tr>
-          <td>124</td>
-          <td><span class="badge cctv">CCTV 부족</span></td>
-          <td class="post-title">숙소 주변 CCTV 위치 확인 필요</td>
-          <td>제주 서귀포시</td>
-          <td>여행자3</td>
-          <td>2024.05.18</td>
-          <td>28</td>
-        </tr>
+        <td th:text="${report.id}"></td>
 
-        <tr>
-          <td>123</td>
-          <td><span class="badge suspect">수상한 사람</span></td>
-          <td class="post-title">관광지 주변 호객 행위 주의</td>
-          <td>강원 강릉시</td>
-          <td>사용자4</td>
-          <td>2024.05.17</td>
-          <td>51</td>
-        </tr>
+        <td>
+    <span class="badge danger"
+          th:text="${report.dangerLevel}">
+    </span>
+        </td>
 
-        <tr>
-          <td>122</td>
-          <td><span class="badge etc">기타</span></td>
-          <td class="post-title">야간 이동 시 대로변 이용 추천</td>
-          <td>서울 마포구</td>
-          <td>여행자5</td>
-          <td>2024.05.16</td>
-          <td>64</td>
-        </tr>
+        <td class="post-title"
+            th:text="${report.title}">
+        </td>
+
+        <td th:text="${report.region.sigungu}"></td>
+
+        <td th:text="${report.user.nickname}"></td>
+
+        <td th:text="${#temporals.format(report.createdAt, 'yyyy.MM.dd')}">
+        </td>
+
+        <td>0</td>
+
+      </tr>
+
       </tbody>
     </table>
   </section>

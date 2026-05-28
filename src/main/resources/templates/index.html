@@ -1,30 +1,36 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafeTrip</title>
-  <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet"
+        th:href="@{/css/index.css}">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
 <header class="navbar">
-  <div class="logo">
+
+  <a th:href="@{/}" class="logo">
     <i data-lucide="shield-check"></i>
     <span>SAFE TRIP</span>
-  </div>
+  </a>
 
-  <nav>
-    <a href="#" class="active">홈</a>
-    <a href="#">지역 검색</a>
-    <a href="#">안전 리포트</a>
-    <a href="#">지도</a>
-    <a href="#">예방 가이드</a>
-    <a href="#">신고 게시판</a>
+  <nav class="nav-menu">
+    <a th:href="@{/}" class="active">홈</a>
+    <a th:href="@{/region}">지역 검색</a>
+    <a th:href="@{/report}">안전 리포트</a>
+    <a th:href="@{/map}">지도</a>
+    <a th:href="@{/guide}">예방 가이드</a>
+    <a th:href="@{/board}">신고 게시판</a>
   </nav>
 
-  <a href="#" class="login-btn">로그인</a>
+  <div class="nav-right">
+    <a th:href="@{/login}" class="login-btn">로그인</a>
+  </div>
+
 </header>
 
 <main class="container">

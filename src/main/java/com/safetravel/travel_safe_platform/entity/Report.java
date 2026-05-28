@@ -1,8 +1,7 @@
 package com.safetravel.travel_safe_platform.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +9,9 @@ import java.time.LocalDateTime;
 @Table(name = "reports")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Report {
 
     @Id
@@ -23,7 +25,7 @@ public class Report {
 
     // 지역
     @ManyToOne
-    @JoinColumn(name = "region_id")  // DB에서 region_id 컬럼으로 연결
+    @JoinColumn(name = "region_id")
     private Region region;
 
     // 제목
@@ -34,14 +36,14 @@ public class Report {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    // 위도
-    private Double latitude;
-
-    // 경도
-    private Double longitude;
+    // 카테고리
+    private String category;
 
     // 위험도
     private String dangerLevel;
+
+    // 조회수
+    private int views;
 
     // 작성일
     private LocalDateTime createdAt;
