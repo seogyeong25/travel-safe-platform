@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 수정</title>
+</head>
+
+<body>
+
+<h1>게시글 수정</h1>
+
+<form th:action="@{/reports/{id}(id=${report.id})}"
+      method="post">
+
+    <input type="hidden"
+           name="_method"
+           value="put">
+
+    <div>
+        <label>제목</label>
+        <input type="text"
+               name="title"
+               th:value="${report.title}">
+    </div>
+
+    <div>
+        <label>내용</label>
+        <textarea name="content"
+                  th:text="${report.content}">
+    </textarea>
+    </div>
+
+    <div>
+        <label>위험도</label>
+        <input type="text"
+               name="dangerLevel"
+               th:value="${report.dangerLevel}">
+    </div>
+
+    <div>
+        <label>카테고리</label>
+        <input type="text"
+               name="category"
+               th:value="${report.category}">
+    </div>
+
+    <button type="submit">
+        수정 완료
+    </button>
+
+</form>
+
+</body>
+</html>

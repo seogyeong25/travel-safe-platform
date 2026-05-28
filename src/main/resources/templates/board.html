@@ -58,20 +58,42 @@
 
   <section class="board-toolbar">
     <div class="tabs">
-      <button class="active">전체</button>
-      <button>위험 지역</button>
-      <button>어두운 골목</button>
-      <button>CCTV 부족</button>
-      <button>수상한 사람</button>
-      <button>기타</button>
+      <a th:href="@{/board}" class="active"><button class="active">전체</button></a>
+      <a th:href="@{/board(category='위험 지역')}">
+        <button>위험 지역</button>
+      </a>
+
+      <a th:href="@{/board(category='어두운 골목')}">
+        <button>어두운 골목</button>
+      </a>
+
+      <a th:href="@{/board(category='CCTV 부족')}">
+        <button>CCTV 부족</button>
+      </a>
+
+      <a th:href="@{/board(category='수상한 사람')}">
+        <button>수상한 사람</button>
+      </a>
+
+      <a th:href="@{/board(category='기타')}">
+        <button>기타</button>
+      </a>
+      </a>
     </div>
 
-    <div class="search-box-board">
-      <input type="text" placeholder="제목, 지역을 검색하세요">
-      <button>
+    <form th:action="@{/board}"
+          method="get"
+          class="search-box-board">
+
+      <input type="text"
+             name="keyword"
+             placeholder="제목을 검색하세요">
+
+      <button type="submit">
         <i data-lucide="search"></i>
       </button>
-    </div>
+
+    </form>
   </section>
 
   <section class="table-card">
@@ -96,20 +118,23 @@
 
         <td>
     <span class="badge danger"
-          th:text="${report.dangerLevel}">
+          th:text="${report.category}">
     </span>
         </td>
 
-        <td class="post-title"
-            th:text="${report.title}">
+        <td class="post-title">
+
+          <a th:href="@{/board/{id}(id=${report.id})}"
+             th:text="${report.title}">
+          </a>
+
         </td>
 
-        <td th:text="${report.region.sigungu}"></td>
+        <td th:text="${report.regionName}"></td>
 
-        <td th:text="${report.user.nickname}"></td>
+        <td th:text="${report.nickname}"></td>
 
-        <td th:text="${#temporals.format(report.createdAt, 'yyyy.MM.dd')}">
-        </td>
+        <td th:text="${report.createdAt}"></td>
 
         <td>0</td>
 

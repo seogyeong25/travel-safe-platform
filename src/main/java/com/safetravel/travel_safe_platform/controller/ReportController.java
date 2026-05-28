@@ -1,6 +1,7 @@
 package com.safetravel.travel_safe_platform.controller;
-
 import com.safetravel.travel_safe_platform.dto.ReportResponseDto;
+import com.safetravel.travel_safe_platform.dto.ReportUpdateRequestDto;
+import com.safetravel.travel_safe_platform.dto.ReportWriteRequestDto;
 import com.safetravel.travel_safe_platform.entity.Report;
 import com.safetravel.travel_safe_platform.service.ReportService;
 import org.springframework.web.bind.annotation.*;
@@ -19,30 +20,30 @@ public class ReportController {
 
     // 신고글 작성
     @PostMapping
-    public Report createReport(@RequestBody Report report) {
+    public Report createReport(
+            @RequestBody ReportWriteRequestDto dto) {
 
-        return reportService.saveReport(report);
+        return reportService.saveReport(dto);
     }
 
     // 신고글 전체 조회
     @GetMapping
     public List<ReportResponseDto> getReports() {
 
-        return reportService.getAllReports()
-                .stream()
-                .map(ReportResponseDto::new)
-                .toList();
+        return reportService.getAllReports();
     }
 
     // 신고글 수정
     @PutMapping("/{id}")
-    public Report updateReport(
+    public String updateReport(
             @PathVariable Long id,
-            @RequestBody Report report) {
+            @ModelAttribute ReportUpdateRequestDto dto
+    ) {
 
-        return reportService.updateReport(id, report);
+        reportService.updateReport(id, dto);
+
+        return "redirect:/board/" + id;
     }
-
     // 신고글 삭제
     @DeleteMapping("/{id}")
     public void deleteReport(@PathVariable Long id) {

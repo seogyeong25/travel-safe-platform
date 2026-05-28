@@ -37,6 +37,7 @@ public class Report {
     private String content;
 
     // 카테고리
+    @Column(nullable = false)
     private String category;
 
     // 위험도
