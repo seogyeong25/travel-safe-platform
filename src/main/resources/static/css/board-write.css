@@ -1,0 +1,305 @@
+.write-page {
+  min-height: calc(100vh - 72px);
+  background: #f4f7fb;
+  padding: 42px 64px;
+}
+
+/* 네브바 로고 보정 */
+.navbar .logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+}
+
+.navbar .logo span {
+  color: #ffffff;
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.main-logo {
+  width: 48px !important;
+  height: 48px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.nav-menu a,
+.nav-menu a:visited,
+.nav-menu a:link {
+  color: rgba(255, 255, 255, 0.88) !important;
+  text-decoration: none !important;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+  color: #ffffff !important;
+}
+
+/* 상단 작성 헤더 */
+.write-header {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 30px 34px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+}
+
+.write-header p {
+  color: #0d6efd;
+  font-size: 13px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.write-header h1 {
+  font-size: 32px;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.write-header span {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.back-btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  background: #062b5f;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* 레이아웃 */
+.write-layout {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 330px;
+  gap: 24px;
+}
+
+.write-form {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 34px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 22px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 18px;
+}
+
+.form-group label {
+  color: #334155;
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 9px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+  padding: 0 14px;
+  outline: none;
+}
+
+.form-group input,
+.form-group select {
+  height: 46px;
+}
+
+.form-group textarea {
+  height: 220px;
+  padding: 14px;
+  resize: none;
+  line-height: 1.7;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.08);
+}
+
+.form-group small {
+  color: #94a3b8;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* 버튼 */
+.form-actions {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.form-actions button,
+.form-actions a {
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.cancel-btn {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+}
+
+.submit-btn {
+  border: none;
+  background: #062b5f;
+  color: #ffffff;
+}
+
+/* 오른쪽 안내 */
+.write-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.guide-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+}
+
+.guide-card svg {
+  width: 42px;
+  height: 42px;
+  color: #0d47a1;
+  background: #eef5ff;
+  border-radius: 14px;
+  padding: 10px;
+  margin-bottom: 18px;
+}
+
+.guide-card h3 {
+  font-size: 18px;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.guide-card p {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.guide-card.warning {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.guide-card.warning svg {
+  color: #ea580c;
+  background: #ffedd5;
+}
+
+/* 반응형 */
+@media (max-width: 1024px) {
+  .write-page {
+    padding: 34px 24px;
+  }
+
+  .write-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .write-guide {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .write-page {
+    padding: 24px 16px;
+  }
+
+  .nav-menu {
+    display: none;
+  }
+
+  .main-logo {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .write-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 26px 22px;
+  }
+
+  .write-header h1 {
+    font-size: 28px;
+  }
+
+  .write-form {
+    padding: 24px 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .write-guide {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button,
+  .form-actions a {
+    width: 100%;
+  }
+}

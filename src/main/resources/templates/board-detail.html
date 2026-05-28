@@ -4,46 +4,161 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>게시글 상세</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>신고 상세 | SAFE TRIP</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/index.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/board-detail.css}">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
 
-<h1 th:text="${report.title}"></h1>
-<a th:href="@{/board/edit/{id}(id=${report.id})}">
-    수정하기
-</a>
-<form th:action="@{/board/{id}(id=${report.id})}"
-      method="post">
+<header class="navbar">
 
-    <input type="hidden"
-           name="_method"
-           value="delete">
+    <a th:href="@{/}" class="logo">
+        <img th:src="@{/images/safe.png}"
+             alt="SAFE TRIP 로고"
+             class="main-logo">
 
-    <button type="submit">
-        삭제하기
-    </button>
+        <span>SAFE TRIP</span>
+    </a>
 
-</form>
-<p>
-    작성자 :
-    <span th:text="${report.nickname}"></span>
-</p>
+    <nav class="nav-menu">
+        <a th:href="@{/}">홈</a>
 
-<p>
-    지역 :
-    <span th:text="${report.regionName}"></span>
-</p>
+        <a th:href="@{/report}">
+            안전 리포트
+        </a>
 
-<p>
-    위험도 :
-    <span th:text="${report.dangerLevel}"></span>
-</p>
+        <a th:href="@{/map}">
+            지도
+        </a>
 
-<hr>
+        <a th:href="@{/guide}">
+            예방 가이드
+        </a>
 
-<div th:text="${report.content}">
-</div>
+        <a th:href="@{/board}"
+           class="active">
+            신고 게시판
+        </a>
+    </nav>
+
+    <a th:href="@{/users/login}"
+       class="login-btn">
+        로그인
+    </a>
+
+</header>
+
+<main class="detail-page">
+
+    <section class="detail-card">
+
+        <div class="detail-top">
+
+            <span class="category-badge"
+                  th:text="${report.category}">
+            </span>
+
+            <h1 th:text="${report.title}"></h1>
+
+            <div class="meta">
+
+                <span>
+                    지역 :
+                    <span th:text="${report.regionName}"></span>
+                </span>
+
+                <span>
+                    작성자 :
+                    <span th:text="${report.nickname}"></span>
+                </span>
+
+                <span>
+                    작성일 :
+                    <span th:text="${report.createdAt}"></span>
+                </span>
+
+                <span>
+                    조회수 :
+                    <span th:text="${report.views}"></span>
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="detail-content">
+
+            <p th:text="${report.content}">
+            </p>
+
+        </div>
+
+        <div class="detail-info">
+
+            <h3>위치 정보</h3>
+
+            <p th:text="${report.regionName}">
+            </p>
+
+        </div>
+
+        <div class="detail-actions">
+
+            <a th:href="@{/board}"
+               class="list-btn">
+
+                <i data-lucide="list"></i>
+
+                목록으로
+
+            </a>
+
+            <div>
+
+                <a th:href="@{/board/edit/{id}(id=${report.id})}">
+                    <button class="edit-btn">
+                        수정
+                    </button>
+                </a>
+
+                <form th:action="@{/board/{id}(id=${report.id})}"
+                      method="post"
+                      style="display:inline;">
+
+                    <input type="hidden"
+                           name="_method"
+                           value="delete">
+
+                    <button type="submit"
+                            class="delete-btn">
+
+                        삭제
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+    lucide.createIcons();
+</script>
 
 </body>
 </html>

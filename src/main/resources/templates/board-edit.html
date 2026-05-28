@@ -3,54 +3,222 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
     <meta charset="UTF-8">
-    <title>게시글 수정</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>게시글 수정 | SAFE TRIP</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/index.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/board-write.css}">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
 </head>
 
 <body>
 
-<h1>게시글 수정</h1>
+<header class="navbar">
 
-<form th:action="@{/reports/{id}(id=${report.id})}"
-      method="post">
+    <a th:href="@{/}" class="logo">
 
-    <input type="hidden"
-           name="_method"
-           value="put">
+        <img th:src="@{/images/safe.png}"
+             alt="SAFE TRIP 로고"
+             class="main-logo">
 
-    <div>
-        <label>제목</label>
-        <input type="text"
-               name="title"
-               th:value="${report.title}">
-    </div>
+        <span>SAFE TRIP</span>
 
-    <div>
-        <label>내용</label>
-        <textarea name="content"
-                  th:text="${report.content}">
-    </textarea>
-    </div>
+    </a>
 
-    <div>
-        <label>위험도</label>
-        <input type="text"
-               name="dangerLevel"
-               th:value="${report.dangerLevel}">
-    </div>
+    <nav class="nav-menu">
 
-    <div>
-        <label>카테고리</label>
-        <input type="text"
-               name="category"
-               th:value="${report.category}">
-    </div>
+        <a th:href="@{/}">홈</a>
 
-    <button type="submit">
-        수정 완료
-    </button>
+        <a th:href="@{/report}">
+            안전 리포트
+        </a>
 
-</form>
+        <a th:href="@{/map}">
+            지도
+        </a>
+
+        <a th:href="@{/guide}">
+            예방 가이드
+        </a>
+
+        <a th:href="@{/board}"
+           class="active">
+            신고 게시판
+        </a>
+
+    </nav>
+
+    <a th:href="@{/users/login}"
+       class="login-btn">
+        로그인
+    </a>
+
+</header>
+
+<main class="write-page">
+
+    <!-- 상단 헤더 -->
+    <section class="write-header">
+
+        <div>
+
+            <p>COMMUNITY REPORT</p>
+
+            <h1>게시글 수정</h1>
+
+            <span>
+                신고 게시글 내용을 수정할 수 있습니다.
+            </span>
+
+        </div>
+
+        <a th:href="@{/board/{id}(id=${report.id})}"
+           class="back-btn">
+
+            <i data-lucide="arrow-left"></i>
+
+            상세로 이동
+
+        </a>
+
+    </section>
+
+    <!-- 수정 레이아웃 -->
+    <section class="write-layout">
+
+        <!-- 왼쪽 -->
+        <form th:action="@{/board/edit/{id}(id=${report.id})}"
+              method="post"
+              class="write-form">
+
+            <div class="form-group">
+
+                <label>제목</label>
+
+                <input type="text"
+                       name="title"
+                       th:value="${report.title}">
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>위험도</label>
+
+                    <select name="dangerLevel">
+
+                        <option value="낮음"
+                                th:selected="${report.dangerLevel == '낮음'}">
+                            낮음
+                        </option>
+
+                        <option value="보통"
+                                th:selected="${report.dangerLevel == '보통'}">
+                            보통
+                        </option>
+
+                        <option value="높음"
+                                th:selected="${report.dangerLevel == '높음'}">
+                            높음
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>카테고리</label>
+
+                    <input type="text"
+                           name="category"
+                           th:value="${report.category}">
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>내용</label>
+
+                <textarea name="content"
+                          th:text="${report.content}">
+                </textarea>
+
+            </div>
+
+            <div class="form-actions">
+
+                <a th:href="@{/board/{id}(id=${report.id})}"
+                   class="cancel-btn">
+
+                    취소
+
+                </a>
+
+                <button type="submit"
+                        class="submit-btn">
+
+                    수정 완료
+
+                </button>
+
+            </div>
+
+        </form>
+
+        <!-- 오른쪽 안내 -->
+        <aside class="write-guide">
+
+            <div class="guide-card">
+
+                <i data-lucide="file-pen-line"></i>
+
+                <h3>게시글 수정</h3>
+
+                <p>
+                    기존 신고글 내용을 수정하여
+                    최신 정보를 반영할 수 있습니다.
+                </p>
+
+            </div>
+
+            <div class="guide-card warning">
+
+                <i data-lucide="triangle-alert"></i>
+
+                <h3>주의사항</h3>
+
+                <p>
+                    허위 내용 및 부적절한 게시글은
+                    삭제될 수 있습니다.
+                </p>
+
+            </div>
+
+        </aside>
+
+    </section>
+
+</main>
+
+<script>
+    lucide.createIcons();
+</script>
 
 </body>
 </html>
+

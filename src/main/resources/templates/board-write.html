@@ -1,72 +1,157 @@
 <!DOCTYPE html>
-<html lang="ko"
-      xmlns:th="http://www.thymeleaf.org">
-
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>글쓰기</title>
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신고 글쓰기 | SAFE TRIP</title>
 
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/board-write.css}">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
 <body>
 
-<h1>신고글 작성</h1>
+<header class="navbar">
+    <a th:href="@{/}" class="logo">
+        <img th:src="@{/images/safe.png}" alt="SAFE TRIP 로고" class="main-logo">
+        <span>SAFE TRIP</span>
+    </a>
 
-<form id="writeForm">
+    <nav class="nav-menu">
+        <a th:href="@{/}">홈</a>
+        <a th:href="@{/report}">안전 리포트</a>
+        <a th:href="@{/map}">지도</a>
+        <a th:href="@{/guide}">예방 가이드</a>
+        <a th:href="@{/board}" class="active">신고 게시판</a>
+    </nav>
 
-    <input type="text"
-           id="title"
-           placeholder="제목 입력">
+    <a th:href="@{/login}" class="login-btn">로그인</a>
+</header>
 
-    <br><br>
+<main class="write-page">
 
-    <textarea id="content"
-              placeholder="내용 입력"></textarea>
+    <section class="write-header">
+        <div>
+            <p>COMMUNITY REPORT</p>
+            <h1>신고 글쓰기</h1>
+            <span>위험 장소, 불안 요소, 안전 관련 정보를 공유해주세요.</span>
+        </div>
 
-    <br><br>
+        <a th:href="@{/board}" class="back-btn">
+            <i data-lucide="list"></i>
+            목록으로
+        </a>
+    </section>
 
-    <select id="dangerLevel">
-        <option value="낮음">낮음</option>
-        <option value="보통">보통</option>
-        <option value="높음">높음</option>
-    </select>
+    <section class="write-layout">
 
-    <br><br>
+        <form class="write-form"
+              th:action="@{/board/write}"
+              method="post"
+              enctype="multipart/form-data">
 
-    <button type="submit">
-        저장
-    </button>
+            <div class="form-group">
+                <label for="category">카테고리</label>
+                <select id="category" name="category">
+                    <option value="위험 지역">위험 지역</option>
+                    <option value="어두운 골목">어두운 골목</option>
+                    <option value="CCTV 부족">CCTV 부족</option>
+                    <option value="수상한 사람">수상한 사람</option>
+                    <option value="교통 위험">교통 위험</option>
+                    <option value="기타">기타</option>
+                </select>
+            </div>
 
-</form>
+            <div class="form-group">
+                <label for="region">지역</label>
+                <input id="region"
+                       name="region"
+                       type="text"
+                       placeholder="예) 부산 해운대구">
+            </div>
+
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input id="title"
+                       name="title"
+                       type="text"
+                       placeholder="제목을 입력하세요">
+            </div>
+
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea id="content"
+                          name="content"
+                          placeholder="위험 상황, 위치, 시간대 등 자세한 내용을 입력하세요."></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="address">상세 위치</label>
+                    <input id="address"
+                           name="address"
+                           type="text"
+                           placeholder="예) 해운대역 3번 출구 근처 골목">
+                </div>
+
+                <div class="form-group">
+                    <label for="date">발생 날짜</label>
+                    <input id="date"
+                           name="date"
+                           type="date">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="file">사진 첨부</label>
+                <input id="file"
+                       name="file"
+                       type="file">
+                <small>선택 사항입니다. JPG, PNG 파일을 첨부할 수 있습니다.</small>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/board}" class="cancel-btn">취소</a>
+                <button type="submit" class="submit-btn">등록하기</button>
+            </div>
+
+        </form>
+
+        <aside class="write-guide">
+            <div class="guide-card">
+                <i data-lucide="info"></i>
+                <h3>작성 안내</h3>
+                <p>
+                    실제 긴급 상황은 게시판이 아닌 112에 신고해주세요.
+                    본 게시판은 여행자 간 안전 정보 공유를 위한 공간입니다.
+                </p>
+            </div>
+
+            <div class="guide-card">
+                <i data-lucide="map-pin"></i>
+                <h3>위치 정보</h3>
+                <p>
+                    정확한 지역명과 상세 위치를 입력하면 지도 페이지에서
+                    위험 제보 위치로 활용할 수 있습니다.
+                </p>
+            </div>
+
+            <div class="guide-card warning">
+                <i data-lucide="shield-alert"></i>
+                <h3>주의 사항</h3>
+                <p>
+                    허위 신고, 개인정보 노출, 특정인 비방 내용은 제한될 수 있습니다.
+                </p>
+            </div>
+        </aside>
+
+    </section>
+
+</main>
 
 <script>
-
-    document.getElementById("writeForm")
-    .addEventListener("submit", async function(e) {
-
-        e.preventDefault();
-
-        const reportData = {
-            title: document.getElementById("title").value,
-            content: document.getElementById("content").value,
-            dangerLevel: document.getElementById("dangerLevel").value
-        };
-
-        const response = await fetch("/reports", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(reportData)
-        });
-
-        if(response.ok) {
-            alert("저장 성공!");
-
-            location.href = "/board";
-        }
-
-    });
-
+    lucide.createIcons();
 </script>
 
 </body>

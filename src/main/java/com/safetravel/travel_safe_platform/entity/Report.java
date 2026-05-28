@@ -44,8 +44,10 @@ public class Report {
     private String dangerLevel;
 
     // 조회수
-    private int views;
+    @Column(nullable = false)
+    private int views = 0;
 
     // 작성일
     private LocalDateTime createdAt;
+
 }

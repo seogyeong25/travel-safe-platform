@@ -1,6 +1,8 @@
 package com.safetravel.travel_safe_platform.controller;
 
+import org.springframework.data.domain.Page;
 import com.safetravel.travel_safe_platform.dto.ReportResponseDto;
+import com.safetravel.travel_safe_platform.dto.ReportUpdateRequestDto;
 import com.safetravel.travel_safe_platform.dto.ReportWriteRequestDto;
 import com.safetravel.travel_safe_platform.service.ReportService;
 import org.springframework.stereotype.Controller;
@@ -43,6 +45,9 @@ public class BoardController {
             Model model
     ) {
 
+        // 조회수 증가
+        reportService.increaseViews(id);
+
         ReportResponseDto report =
                 reportService.getReport(id);
 
@@ -67,6 +72,18 @@ public class BoardController {
         return "board-edit";
     }
 
+    @PostMapping("/board/edit/{id}")
+    public String updateBoard(
+            @PathVariable Long id,
+            @ModelAttribute ReportUpdateRequestDto dto
+    ) {
+
+        reportService.updateReport(id, dto);
+
+        return "redirect:/board/" + id;
+    }
+
+
 // 글 삭제
 @DeleteMapping("/board/{id}")
 public String deleteReport(
@@ -80,6 +97,8 @@ public String deleteReport(
 
     @GetMapping("/board")
     public String boardPage(
+            @RequestParam(defaultValue = "0")
+            int page,
 
             @RequestParam(required = false)
             String keyword,
@@ -90,30 +109,40 @@ public String deleteReport(
             Model model
     ) {
 
-        List<ReportResponseDto> reports;
+        Page<ReportResponseDto> reports;
 
         // 검색
         if (keyword != null && !keyword.isEmpty()) {
 
-            reports = reportService.searchReports(keyword);
-
+            reports = reportService.searchReports(
+                    keyword,
+                    page
+            );
         }
 
-        // 카테고리
+// 카테고리
         else if (category != null && !category.isEmpty()) {
 
-            reports =
-                    reportService.getReportsByCategory(category);
-
+            reports = reportService.getReportsByCategory(
+                    category,
+                    page
+            );
         }
 
         // 전체
         else {
 
-            reports = reportService.getAllReports();
+            reports = reportService.getAllReports(page);
         }
 
         model.addAttribute("reports", reports);
+
+        model.addAttribute("currentPage", page);
+
+        model.addAttribute(
+                "totalPages",
+                reports.getTotalPages()
+        );
 
         return "board";
     }

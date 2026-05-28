@@ -1,4 +1,7 @@
 package com.safetravel.travel_safe_platform.service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import com.safetravel.travel_safe_platform.dto.ReportUpdateRequestDto;
 import com.safetravel.travel_safe_platform.dto.ReportResponseDto;
 import com.safetravel.travel_safe_platform.entity.Region;
@@ -63,14 +66,19 @@ public class ReportService {
     }
     // 신고글 전체 조회
 // 신고글 전체 조회
-    public List<ReportResponseDto> getAllReports() {
+    public Page<ReportResponseDto> getAllReports(int page) {
 
-        return reportRepository.findAll(
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        10,
                         Sort.by(Sort.Direction.DESC, "createdAt")
-                ).stream()
-                .map(ReportResponseDto::new)
-                .toList();
+                );
+
+        return reportRepository.findAll(pageable)
+                .map(ReportResponseDto::new);
     }
+
     // 신고글 수정
     public Report updateReport(
             Long id,
@@ -112,24 +120,50 @@ public class ReportService {
     }
 
     // 게시글 검색
-    public List<ReportResponseDto> searchReports(String keyword) {
+    public Page<ReportResponseDto> searchReports(
+            String keyword,
+            int page
+    ) {
+
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        10,
+                        Sort.by(Sort.Direction.DESC, "createdAt")
+                );
 
         return reportRepository
-                .findByTitleContaining(keyword)
-                .stream()
-                .map(ReportResponseDto::new)
-                .toList();
+                .findByTitleContaining(keyword, pageable)
+                .map(ReportResponseDto::new);
     }
 
     // 카테고리별 조회
-    public List<ReportResponseDto> getReportsByCategory(
-            String category
+    public Page<ReportResponseDto> getReportsByCategory(
+            String category,
+            int page
     ) {
 
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        10,
+                        Sort.by(Sort.Direction.DESC, "createdAt")
+                );
+
         return reportRepository
-                .findByCategory(category)
-                .stream()
-                .map(ReportResponseDto::new)
-                .toList();
+                .findByCategory(category, pageable)
+                .map(ReportResponseDto::new);
+    }
+
+    // 조회수 증가
+    public void increaseViews(Long id) {
+
+        Report report = reportRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("게시글 없음"));
+
+        report.setViews(report.getViews() + 1);
+
+        reportRepository.save(report);
     }
 }

@@ -1,0 +1,209 @@
+.detail-page {
+  min-height: calc(100vh - 72px);
+  background: #f4f7fb;
+  padding: 48px 64px;
+}
+
+.detail-card {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 42px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.05);
+}
+
+/* 상단 */
+
+.detail-top {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 28px;
+}
+
+.category-badge {
+  display: inline-block;
+  background: #fee2e2;
+  color: #ef4444;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+  margin-bottom: 18px;
+}
+
+.detail-top h1 {
+  font-size: 36px;
+  color: #0f172a;
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+
+/* 메타 정보 */
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* 내용 */
+
+.detail-content {
+  min-height: 280px;
+  padding: 36px 0;
+  color: #334155;
+  font-size: 16px;
+  line-height: 1.9;
+  border-bottom: 1px solid #e2e8f0;
+
+  /* 긴 글 자동 줄바꿈 */
+  word-break: break-word;
+}
+
+/* 위치 정보 */
+
+.detail-info {
+  margin-top: 28px;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.detail-info h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #0f172a;
+}
+
+.detail-info p {
+  color: #64748b;
+}
+
+/* 하단 버튼 */
+
+.detail-actions {
+  margin-top: 34px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-actions div {
+  display: flex;
+  gap: 10px;
+}
+
+/* 공통 버튼 */
+
+.list-btn,
+.edit-btn,
+.delete-btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* 목록 버튼 */
+
+.list-btn {
+  background: #062b5f;
+  color: white;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-btn:hover {
+  background: #0b3c80;
+}
+
+.list-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* 수정 버튼 */
+
+.edit-btn {
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #334155;
+}
+
+.edit-btn:hover {
+  background: #f1f5f9;
+}
+
+/* 삭제 버튼 */
+
+.delete-btn {
+  border: none;
+  background: #ef4444;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+/* form 기본 margin 제거 */
+
+form {
+  margin: 0;
+}
+
+/* 로고 */
+
+.main-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+/* 모바일 */
+
+@media (max-width: 768px) {
+
+  .detail-page {
+    padding: 24px 16px;
+  }
+
+  .detail-card {
+    padding: 28px 22px;
+  }
+
+  .detail-top h1 {
+    font-size: 28px;
+  }
+
+  .meta {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .detail-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .detail-actions div {
+    display: flex;
+    gap: 8px;
+  }
+
+  .list-btn,
+  .edit-btn,
+  .delete-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

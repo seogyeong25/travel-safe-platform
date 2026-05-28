@@ -1,6 +1,7 @@
 package com.safetravel.travel_safe_platform.dto;
 
 import com.safetravel.travel_safe_platform.entity.Report;
+import java.time.format.DateTimeFormatter;
 import lombok.Getter;
 
 @Getter
@@ -22,6 +23,8 @@ public class ReportResponseDto {
 
     private String createdAt;
 
+    private int views;
+
     // 생성자
     public ReportResponseDto(Report report) {
 
@@ -42,6 +45,14 @@ public class ReportResponseDto {
         this.regionName = report.getRegion().getSigungu();
 
         // 날짜
-        this.createdAt = report.getCreatedAt().toString();
+        this.createdAt = report.getCreatedAt()
+                .format(
+                        DateTimeFormatter.ofPattern(
+                                "yyyy-MM-dd HH:mm"
+                        )
+                );
+
+        // 조회수
+        this.views = report.getViews();
     }
 }
