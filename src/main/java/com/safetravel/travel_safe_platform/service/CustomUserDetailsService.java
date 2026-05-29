@@ -7,6 +7,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * Spring Security용 사용자 정보 로더.
+ * <p>DB의 {@link User}를 {@link UserDetails}로 변환합니다.</p>
+ */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -16,18 +20,22 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * 아이디로 회원을 조회해 Spring Security 사용자 객체로 반환합니다.
+     *
+     * @param username 로그인 아이디
+     * @return UserDetails
+     * @throws UsernameNotFoundException 해당 아이디가 없을 때
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 1. DB에서 해당 username을 가진 유저를 조회합니다.
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 사용자를 찾을 수 없습니다: " + username));
 
-        // 2. Spring Security가 이해할 수 있는 UserDetails 객체로 변환하여 반환합니다.
-        // org.springframework.security.core.userdetails.User 객체를 활용합니다.
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
-                .password(user.getPassword()) // DB에 저장된 암호화된 비밀번호
-                .roles("USER")                // 기본 권한 설정 (추후 관리자 기능 등이 필요하면 엔티티에 role 필드 추가)
+                .password(user.getPassword())
+                .roles("USER")
                 .build();
     }
 }

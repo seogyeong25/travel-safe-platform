@@ -1,7 +1,13 @@
+/**
+ * SAFE TRIP - guide.js
+ * 범죄 예방 가이드 페이지: 유형별 탭 전환, URL ?type= 파라미터 연동
+ */
+
+/** 유형별 가이드 콘텐츠 (제목·설명·수칙 카드) */
 const guideData = {
   theft: {
     title: "절도 예방 가이드",
-    desc: "여행 중 절도 피해를 예방하기 위한 수칙입니다.",
+    desc: "여행 중 절도 피해를 예방하기 위한 수칙입니다. 관광지·숙소·대중교통에서 특히 주의하세요.",
     items: [
       {
         icon: "briefcase",
@@ -103,15 +109,15 @@ const guideData = {
       },
       {
         icon: "navigation",
-        title: "경로 확인",
-        text: "목적지까지의 경로와 주변 경찰서 위치를 미리 확인하세요."
+        title: "경로·치안시설 확인",
+        text: "목적지 경로와 주변 경찰서·지구대 위치를 지도에서 미리 확인하세요."
       }
     ]
   },
 
   traffic: {
-    title: "교통사고 예방 가이드",
-    desc: "낯선 여행지에서 교통사고를 예방하기 위한 수칙입니다.",
+    title: "교통 위험 예방 가이드",
+    desc: "낯선 여행지에서 교통 관련 사고·위험을 예방하기 위한 수칙입니다.",
     items: [
       {
         icon: "traffic-cone",
@@ -120,13 +126,13 @@ const guideData = {
       },
       {
         icon: "car",
-        title: "렌터카 주의",
-        text: "렌터카 이용 시 지역 도로 상황과 주차 규정을 미리 확인하세요."
+        title: "렌터카·택시 주의",
+        text: "이용 전 지역 도로 상황, 주차 규정, 기본 요금을 미리 확인하세요."
       },
       {
         icon: "bike",
         title: "킥보드·자전거 주의",
-        text: "공유 킥보드나 자전거 이용 시 헬멧 착용과 보행자 주의를 지키세요."
+        text: "공유 이동 수단 이용 시 헬멧 착용과 보행자 주의를 지키세요."
       }
     ]
   },
@@ -137,7 +143,7 @@ const guideData = {
     items: [
       {
         icon: "cloud-rain",
-        title: "날씨 확인",
+        title: "날씨·환경 확인",
         text: "여행 전 기상 상황을 확인하고 우천·폭염·한파에 대비하세요."
       },
       {
@@ -147,30 +153,50 @@ const guideData = {
       },
       {
         icon: "circle-help",
-        title: "긴급 연락처 확인",
-        text: "112, 119, 숙소 연락처 등 긴급 연락처를 미리 저장하세요."
+        title: "긴급 연락처 저장",
+        text: "112, 119, 숙소 연락처, 대사관 연락처를 미리 저장하세요."
       }
     ]
   }
 };
 
-const tabs = document.querySelectorAll(".tab");
-const guideTitle = document.querySelector("#guideTitle");
-const guideDesc = document.querySelector("#guideDesc");
-const guideList = document.querySelector("#guideList");
+/** API/리포트 범죄명 → 가이드 data 키 매핑 */
+const typeAlias = {
+  robbery: "violence",
+  murder: "violence",
+  assault: "violence",
+  sexual_assault: "sexual",
+  sexualassault: "sexual"
+};
 
+/** 검색어·별칭을 guideData 키로 정규화 */
+function resolveGuideType(type) {
+  if (!type) return "theft";
+  const key = type.toLowerCase().replace(/\s+/g, "");
+  if (guideData[key]) return key;
+  if (typeAlias[key]) return typeAlias[key];
+  if (key.includes("절도") || key.includes("theft")) return "theft";
+  if (key.includes("폭력") || key.includes("violence")) return "violence";
+  if (key.includes("성범")) return "sexual";
+  if (key.includes("소매")) return "pickpocket";
+  if (key.includes("야간")) return "night";
+  if (key.includes("교통")) return "traffic";
+  return "theft";
+}
+
+/** 선택 유형의 가이드 HTML 렌더링 */
 function renderGuide(type) {
   const data = guideData[type];
+  if (!data) return;
 
-  guideTitle.textContent = data.title;
-  guideDesc.textContent = data.desc;
+  document.getElementById("guideTitle").textContent = data.title;
+  document.getElementById("guideDesc").textContent = data.desc;
 
-  guideList.innerHTML = data.items.map(item => `
+  document.getElementById("guideList").innerHTML = data.items.map(item => `
     <article class="guide-item">
       <div class="guide-icon">
         <i data-lucide="${item.icon}"></i>
       </div>
-
       <div>
         <h3>${item.title}</h3>
         <p>${item.text}</p>
@@ -178,17 +204,31 @@ function renderGuide(type) {
     </article>
   `).join("");
 
-  lucide.createIcons();
+  if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+  }
 }
 
-tabs.forEach(tab => {
-  tab.addEventListener("click", () => {
-    tabs.forEach(btn => btn.classList.remove("active"));
-    tab.classList.add("active");
-
-    const type = tab.dataset.type;
-    renderGuide(type);
+/** 탭 활성화 + 콘텐츠 갱신 */
+function activateTab(type) {
+  const tabs = document.querySelectorAll(".tab");
+  tabs.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.type === type);
   });
-});
+  renderGuide(type);
+}
 
-renderGuide("theft");
+document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const initialType = resolveGuideType(params.get("type"));
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      const type = tab.dataset.type;
+      activateTab(type);
+      window.history.replaceState({}, "", `/guide?type=${type}`);
+    });
+  });
+
+  activateTab(initialType);
+});

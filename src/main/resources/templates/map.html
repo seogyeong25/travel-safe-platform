@@ -1,36 +1,22 @@
 <!DOCTYPE html>
+<!-- SAFE TRIP - 안전 지도: 경찰서·신고글 마커, 지역 필터 -->
 <html lang="ko"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>지도 | SAFE TRIP</title>
-  <link rel="stylesheet"
-        th:href="@{/css/index.css}">
-  <link rel="stylesheet"
-        th:href="@{/css/map.css}">
-
+  <th:block th:replace="~{fragments/csrf :: csrfMeta}"></th:block>
+  <link rel="stylesheet" th:href="@{/css/index.css}">
+  <link rel="stylesheet" th:href="@{/css/map.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script th:src="@{/js/csrf-fetch.js}"></script>
 </head>
 <body>
 
-<header class="navbar">
-  <div class="logo">
-    <i data-lucide="shield-check"></i>
-    <span>SAFE TRIP</span>
-  </div>
-
-  <nav>
-    <a href="index.html">홈</a>
-    <a href="#">지역 검색</a>
-    <a href="report.html">안전 리포트</a>
-    <a href="map.html" class="active">지도</a>
-    <a href="guide.html">예방 가이드</a>
-    <a href="board.html">신고 게시판</a>
-  </nav>
-
-  <a href="login.html" class="login-btn">로그인</a>
-</header>
+<div th:replace="~{fragments/navbar :: navbar('map')}"></div>
 
 <main class="map-page">
 
@@ -38,12 +24,12 @@
     <div>
       <p>SAFETY MAP</p>
       <h1>여행지 안전 지도</h1>
-      <span>CSV 기반 CCTV, 경찰서, 지구대, 위험 제보 위치를 지도 형태로 시각화합니다.</span>
+      <span>경찰서·지구대·파출소 위치와 지역별 위험 제보를 지도에서 확인하세요.</span>
     </div>
 
     <div class="map-search">
-      <input type="text" placeholder="지역을 검색하세요 예) 부산 해운대구">
-      <button>
+      <input type="text" id="mapSearchInput" placeholder="지역 검색 (예: 부산 해운대)">
+      <button type="button" id="mapSearchBtn" aria-label="검색">
         <i data-lucide="search"></i>
       </button>
     </div>
@@ -54,148 +40,491 @@
     <aside class="map-sidebar">
 
       <div class="filter-box">
-        <h3>지도 정보 선택</h3>
+        <h3>지역 선택</h3>
+        <select id="mapSido" class="map-select">
+          <option value="">시/도</option>
+          <option th:each="s : ${sidoList}" th:value="${s}" th:text="${s}"></option>
+        </select>
+        <select id="mapSigungu" class="map-select">
+          <option value="">시/군/구</option>
+          <option th:each="r : ${regions}"
+                  th:value="${r.id}"
+                  th:text="${r.sigungu}"
+                  th:data-sido="${r.sido}"></option>
+        </select>
+        <button type="button" class="map-apply-btn" id="mapApplyBtn">지도 보기</button>
+      </div>
 
+      <div class="filter-box">
+        <h3>지도 표시</h3>
         <label>
-          <input type="checkbox" checked>
-          <span class="dot blue"></span>
-          CCTV
-        </label>
-
-        <label>
-          <input type="checkbox" checked>
+          <input type="checkbox" id="filterPolice" checked>
           <span class="dot navy"></span>
-          경찰서 / 지구대
+          경찰서 / 지구대 / 파출소
         </label>
-
         <label>
-          <input type="checkbox" checked>
+          <input type="checkbox" id="filterReport" checked>
           <span class="dot red"></span>
           위험 제보
         </label>
-
-        <label>
-          <input type="checkbox">
-          <span class="dot orange"></span>
-          주의 지역
+        <label class="filter-disabled" title="CCTV는 지역별 설치 대수만 제공됩니다">
+          <input type="checkbox" id="filterCctv" disabled>
+          <span class="dot blue"></span>
+          CCTV (집계만)
         </label>
       </div>
 
       <div class="filter-box">
-        <h3>위험도 단계</h3>
-
-        <div class="risk-row">
-          <span class="risk very"></span>
-          매우 높음
-        </div>
-
-        <div class="risk-row">
-          <span class="risk high"></span>
-          높음
-        </div>
-
-        <div class="risk-row">
-          <span class="risk normal"></span>
-          보통
-        </div>
-
-        <div class="risk-row">
-          <span class="risk low"></span>
-          낮음
-        </div>
+        <h3>위험도 기준</h3>
+        <div class="risk-row"><span class="risk very"></span> 70점 미만</div>
+        <div class="risk-row"><span class="risk high"></span> 40 ~ 69점</div>
+        <div class="risk-row"><span class="risk normal"></span> 40점 이상</div>
       </div>
 
       <div class="region-summary">
         <p>현재 선택 지역</p>
-        <h2>부산 해운대구</h2>
+        <h2 id="summary-region">지역을 선택하세요</h2>
+        <p class="summary-type" id="summary-type"></p>
 
         <div class="summary-item">
-          <span>CCTV</span>
-          <strong>128대</strong>
+          <span>CCTV (설치 대수)</span>
+          <strong id="summary-cctv">-</strong>
+        </div>
+        <div class="summary-item">
+          <span>치안 시설</span>
+          <strong id="summary-police">-</strong>
+        </div>
+        <div class="summary-item">
+          <span>위험 제보</span>
+          <strong id="summary-reports">-</strong>
         </div>
 
-        <div class="summary-item">
-          <span>경찰서 / 지구대</span>
-          <strong>6곳</strong>
-        </div>
-
-        <div class="summary-item">
-          <span>최근 제보</span>
-          <strong>12건</strong>
-        </div>
+        <a href="#" id="summary-report-link" class="summary-link" style="display: none;">
+          안전 리포트 보기 →
+        </a>
       </div>
 
     </aside>
 
     <section class="map-area">
-
-      <div class="fake-map">
-
-        <div class="map-road road1"></div>
-        <div class="map-road road2"></div>
-        <div class="map-road road3"></div>
-        <div class="map-road road4"></div>
-
-        <div class="water-area"></div>
-        <div class="park-area park1"></div>
-        <div class="park-area park2"></div>
-
-        <div class="heat heat1"></div>
-        <div class="heat heat2"></div>
-
-        <button class="map-marker cctv" style="top: 23%; left: 34%;">
-          <i data-lucide="video"></i>
-        </button>
-
-        <button class="map-marker police" style="top: 37%; left: 58%;">
-          <i data-lucide="shield"></i>
-        </button>
-
-        <button class="map-marker danger" style="top: 52%; left: 43%;">
-          <i data-lucide="triangle-alert"></i>
-        </button>
-
-        <button class="map-marker cctv" style="top: 64%; left: 67%;">
-          <i data-lucide="video"></i>
-        </button>
-
-        <button class="map-marker police" style="top: 72%; left: 28%;">
-          <i data-lucide="shield"></i>
-        </button>
-
-        <button class="map-marker danger" style="top: 30%; left: 74%;">
-          <i data-lucide="triangle-alert"></i>
-        </button>
-
-        <div class="place-card">
-          <div class="place-top">
-            <h3>해운대 지구대</h3>
-            <span>경찰서 / 지구대</span>
-          </div>
-
-          <p>부산 해운대구 중동 1378-2</p>
-
-          <div class="place-info">
-            <span>CSV 좌표 데이터 기반</span>
-            <strong>상세정보</strong>
-          </div>
-        </div>
-
-        <div class="zoom-control">
-          <button>+</button>
-          <button>-</button>
-        </div>
-
+      <div id="kakao-map"></div>
+      <div id="map-empty" class="map-empty-msg">
+        왼쪽에서 지역을 선택하거나<br>상단 검색창을 이용해주세요.
       </div>
 
+      <div class="place-card" id="place-card" style="display: none;">
+        <div class="place-top">
+          <h3 id="place-title">-</h3>
+          <span id="place-type">-</span>
+        </div>
+        <p id="place-desc">-</p>
+        <div class="place-info">
+          <span id="place-meta">-</span>
+          <a href="#" id="place-link" class="place-link-btn">상세 보기</a>
+        </div>
+      </div>
     </section>
 
   </section>
 
 </main>
 
-<script>
+<script type="text/javascript"
+        th:src="'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapKey} + '&libraries=services&autoload=false'">
+</script>
+
+<script th:inline="javascript">
   lucide.createIcons();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  let currentRegionId = urlParams.get("regionId");
+
+  let kakaoMap = null;
+  let mapData = null;
+  let regionCenter = null;
+
+  const policeMarkers = [];
+  const reportMarkers = [];
+  let openInfoWindow = null;
+  let ignoreMapClick = false;
+
+  const mapSido = document.getElementById("mapSido");
+  const mapSigungu = document.getElementById("mapSigungu");
+  const allSigunguOptions = Array.from(
+    mapSigungu.querySelectorAll("option[data-sido]")
+  ).map(o => o.cloneNode(true));
+
+  function filterSigunguSelect(keepId) {
+    const sido = mapSido.value;
+    mapSigungu.innerHTML = '<option value="">시/군/구</option>';
+    allSigunguOptions.forEach(option => {
+      if (!sido || option.dataset.sido === sido) {
+        mapSigungu.appendChild(option.cloneNode(true));
+      }
+    });
+    if (keepId) {
+      mapSigungu.value = String(keepId);
+    }
+  }
+
+  mapSido.addEventListener("change", () => filterSigunguSelect(null));
+
+  function waitForKakaoMap() {
+    return new Promise((resolve, reject) => {
+      if (typeof kakao === "undefined" || !kakao.maps) {
+        reject(new Error("카카오맵 로드 실패"));
+        return;
+      }
+      kakao.maps.load(resolve);
+    });
+  }
+
+  function getBoundsCenter(bounds) {
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    return new kakao.maps.LatLng(
+      (sw.getLat() + ne.getLat()) / 2,
+      (sw.getLng() + ne.getLng()) / 2
+    );
+  }
+
+  function clearMarkers(list) {
+    list.forEach(item => {
+      if (item.marker) item.marker.setMap(null);
+      if (item.infowindow) item.infowindow.close();
+    });
+    list.length = 0;
+  }
+
+  function policeColor(type) {
+    if (!type) return "#062b5f";
+    if (type.includes("경찰서")) return "#062b5f";
+    if (type.includes("지구대")) return "#2563eb";
+    return "#38bdf8";
+  }
+
+  function escapeHtml(text) {
+    if (!text) return "";
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function createMarkerImage(color) {
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+        <circle cx="18" cy="18" r="14" fill="${color}" stroke="#ffffff" stroke-width="3"/>
+        <circle cx="18" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
+      </svg>
+    `.trim();
+    const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    const size = new kakao.maps.Size(36, 36);
+    const offset = new kakao.maps.Point(18, 18);
+    return new kakao.maps.MarkerImage(url, size, { offset });
+  }
+
+  function buildInfoWindowHtml(badge, title, line1, line2) {
+    return `
+      <div class="map-info-window">
+        <span class="map-info-badge">${escapeHtml(badge)}</span>
+        <p class="map-info-title">${escapeHtml(title)}</p>
+        ${line1 ? `<p class="map-info-line">${escapeHtml(line1)}</p>` : ""}
+        ${line2 ? `<p class="map-info-line muted">${escapeHtml(line2)}</p>` : ""}
+      </div>
+    `;
+  }
+
+  function showPlaceCard(title, type, desc, meta, link) {
+    const card = document.getElementById("place-card");
+    document.getElementById("place-title").innerText = title;
+    document.getElementById("place-type").innerText = type;
+    document.getElementById("place-desc").innerText = desc;
+    document.getElementById("place-meta").innerText = meta;
+    const linkEl = document.getElementById("place-link");
+    if (link) {
+      linkEl.href = link;
+      linkEl.style.display = "inline";
+    } else {
+      linkEl.style.display = "none";
+    }
+    card.style.display = "block";
+  }
+
+  function openMarkerInfo(marker, infowindow, cardData) {
+    ignoreMapClick = true;
+    setTimeout(() => { ignoreMapClick = false; }, 200);
+
+    if (openInfoWindow) {
+      openInfoWindow.close();
+    }
+    infowindow.open(kakaoMap, marker);
+    openInfoWindow = infowindow;
+    showPlaceCard(
+      cardData.title,
+      cardData.type,
+      cardData.desc,
+      cardData.meta,
+      cardData.link
+    );
+  }
+
+  function renderPoliceMarkers(stations) {
+    clearMarkers(policeMarkers);
+    if (!document.getElementById("filterPolice").checked) return;
+
+    stations.forEach(station => {
+      if (station.latitude == null || station.longitude == null) return;
+
+      const position = new kakao.maps.LatLng(station.latitude, station.longitude);
+      const marker = new kakao.maps.Marker({
+        position,
+        image: createMarkerImage(policeColor(station.type))
+      });
+      marker.setMap(kakaoMap);
+
+      const typeLabel = station.type || "치안 시설";
+      const infowindow = new kakao.maps.InfoWindow({
+        content: buildInfoWindowHtml(
+          typeLabel,
+          station.name,
+          station.address || mapData.regionLabel,
+          mapData.regionLabel
+        ),
+        removable: true
+      });
+
+      const cardData = {
+        title: station.name,
+        type: typeLabel,
+        desc: station.address || mapData.regionLabel,
+        meta: "경찰 시설 · 좌표 데이터",
+        link: null
+      };
+
+      kakao.maps.event.addListener(marker, "click", () => {
+        openMarkerInfo(marker, infowindow, cardData);
+      });
+
+      policeMarkers.push({ marker, infowindow });
+    });
+  }
+
+  function renderReportMarkers(reports, center) {
+    clearMarkers(reportMarkers);
+    if (!document.getElementById("filterReport").checked || !center) return;
+
+    const count = reports.length;
+    if (count === 0) return;
+
+    reports.forEach((report, index) => {
+      const angle = (index / count) * Math.PI * 2;
+      const offset = 0.004;
+      const lat = center.getLat() + Math.sin(angle) * offset;
+      const lng = center.getLng() + Math.cos(angle) * offset;
+      const position = new kakao.maps.LatLng(lat, lng);
+
+      const marker = new kakao.maps.Marker({
+        position,
+        image: createMarkerImage("#ef4444")
+      });
+      marker.setMap(kakaoMap);
+
+      const category = report.category || "위험 제보";
+      const danger = report.dangerLevel || "미입력";
+      const preview = (report.content || "내용 없음").slice(0, 60);
+
+      const infowindow = new kakao.maps.InfoWindow({
+        content: buildInfoWindowHtml(
+          category,
+          report.title,
+          `위험도: ${danger}`,
+          preview + ((report.content || "").length > 60 ? "…" : "")
+        ),
+        removable: true
+      });
+
+      const cardData = {
+        title: report.title,
+        type: category,
+        desc: report.content || "내용 없음",
+        meta: `위험도: ${danger}`,
+        link: `/board/${report.id}`
+      };
+
+      kakao.maps.event.addListener(marker, "click", () => {
+        openMarkerInfo(marker, infowindow, cardData);
+      });
+
+      reportMarkers.push({ marker, infowindow });
+    });
+  }
+
+  function updateSummary(data) {
+    document.getElementById("summary-region").innerText = data.regionLabel;
+    document.getElementById("summary-type").innerText = data.regionType || "";
+    document.getElementById("summary-cctv").innerText = (data.cctvCount || 0).toLocaleString() + "대";
+    document.getElementById("summary-police").innerText = data.policeStations.length + "곳";
+    document.getElementById("summary-reports").innerText = data.reportCount + "건";
+
+    const reportLink = document.getElementById("summary-report-link");
+    reportLink.href = `/report?regionId=${data.regionId}`;
+    reportLink.style.display = "inline-block";
+
+    mapSido.value = data.sido;
+    filterSigunguSelect(data.regionId);
+  }
+
+  async function loadRegionMap(regionId) {
+    const mapEl = document.getElementById("kakao-map");
+    const emptyEl = document.getElementById("map-empty");
+
+    try {
+      const response = await csrfFetch(`/api/map/regions/${regionId}`);
+      if (!response.ok) throw new Error("데이터 로드 실패");
+
+      mapData = await response.json();
+      currentRegionId = regionId;
+      updateSummary(mapData);
+
+      await waitForKakaoMap();
+
+      mapEl.style.display = "block";
+      emptyEl.style.display = "none";
+      document.getElementById("place-card").style.display = "none";
+
+      regionCenter = null;
+
+      const validPolice = mapData.policeStations.filter(
+        s => s.latitude != null && s.longitude != null
+      );
+
+      const bounds = new kakao.maps.LatLngBounds();
+      let hasBounds = false;
+
+      validPolice.forEach(s => {
+        bounds.extend(new kakao.maps.LatLng(s.latitude, s.longitude));
+        hasBounds = true;
+      });
+
+      if (hasBounds) {
+        regionCenter = getBoundsCenter(bounds);
+      }
+
+      const initialCenter = regionCenter
+        || new kakao.maps.LatLng(37.566826, 126.9786567);
+
+      if (!kakaoMap) {
+        kakaoMap = new kakao.maps.Map(mapEl, {
+          center: initialCenter,
+          level: 5
+        });
+      }
+
+      clearMarkers(policeMarkers);
+      clearMarkers(reportMarkers);
+
+      if (hasBounds) {
+        kakaoMap.setBounds(bounds, 50, 50, 50, 50);
+        regionCenter = getBoundsCenter(bounds);
+      } else {
+        await new Promise(resolve => {
+          const geocoder = new kakao.maps.services.Geocoder();
+          geocoder.addressSearch(mapData.regionLabel, (result, status) => {
+            if (status === kakao.maps.services.Status.OK) {
+              regionCenter = new kakao.maps.LatLng(result[0].y, result[0].x);
+              kakaoMap.setCenter(regionCenter);
+              kakaoMap.setLevel(6);
+            }
+            resolve();
+          });
+        });
+      }
+
+      kakaoMap.relayout();
+
+      if (!kakaoMap._clickListenerAdded) {
+        kakao.maps.event.addListener(kakaoMap, "click", () => {
+          if (ignoreMapClick) return;
+          if (openInfoWindow) {
+            openInfoWindow.close();
+            openInfoWindow = null;
+          }
+          document.getElementById("place-card").style.display = "none";
+        });
+        kakaoMap._clickListenerAdded = true;
+      }
+
+      renderPoliceMarkers(mapData.policeStations);
+      renderReportMarkers(mapData.reports, regionCenter);
+
+      if (validPolice.length === 0 && mapData.reports.length === 0) {
+        mapEl.style.display = "none";
+        emptyEl.innerHTML = "표시할 좌표 데이터가 없습니다.<br>다른 지역을 선택해주세요.";
+        emptyEl.style.display = "flex";
+      }
+
+    } catch (e) {
+      console.error(e);
+      mapEl.style.display = "none";
+      emptyEl.style.display = "flex";
+      emptyEl.innerHTML = "지도 데이터를 불러오지 못했습니다.";
+    }
+  }
+
+  async function handleSearch(keyword) {
+    if (!keyword?.trim()) {
+      alert("검색어를 입력해주세요.");
+      return;
+    }
+    const response = await csrfFetch(`/api/search?keyword=${encodeURIComponent(keyword.trim())}`);
+    const data = await response.json();
+    if (data.found && data.redirectUrl) {
+      const id = new URL(data.redirectUrl, window.location.origin).searchParams.get("regionId");
+      if (id) {
+        window.location.href = `/map?regionId=${id}`;
+        return;
+      }
+    }
+    if (data.redirectUrl) {
+      window.location.href = data.redirectUrl.replace("/report", "/region");
+      return;
+    }
+    alert(data.message || "지역을 찾을 수 없습니다.");
+  }
+
+  document.getElementById("mapSearchBtn").addEventListener("click", () => {
+    handleSearch(document.getElementById("mapSearchInput").value);
+  });
+
+  document.getElementById("mapSearchInput").addEventListener("keypress", e => {
+    if (e.key === "Enter") handleSearch(e.target.value);
+  });
+
+  document.getElementById("mapApplyBtn").addEventListener("click", () => {
+    const id = mapSigungu.value;
+    if (!id) {
+      alert("시/군/구를 선택해주세요.");
+      return;
+    }
+    window.history.replaceState({}, "", `/map?regionId=${id}`);
+    loadRegionMap(id);
+  });
+
+  document.getElementById("filterPolice").addEventListener("change", () => {
+    if (mapData) renderPoliceMarkers(mapData.policeStations);
+  });
+
+  document.getElementById("filterReport").addEventListener("change", () => {
+    if (mapData) renderReportMarkers(mapData.reports, regionCenter);
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (currentRegionId) {
+      loadRegionMap(currentRegionId);
+    }
+  });
 </script>
 
 </body>

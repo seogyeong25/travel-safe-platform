@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+/**
+ * 회원 가입·조회 비즈니스 로직.
+ */
 @Service
 @Transactional(readOnly = true)
 public class UserService {
@@ -21,28 +24,28 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // =========================
-    // 회원가입
-    // =========================
+    /**
+     * 회원가입을 처리하고 저장된 회원을 반환합니다.
+     *
+     * @param request 가입 요청 DTO
+     * @return 저장된 회원 엔티티
+     * @throws RuntimeException 비밀번호 불일치, 아이디·이메일 중복 시
+     */
     @Transactional
     public User register(UserRegisterRequest request) {
 
-        // 비밀번호 확인 검사
         if (!request.getPassword().equals(request.getPasswordConfirm())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
-        // 1. username 중복 검사
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("이미 사용중인 아이디입니다.");
         }
 
-        // 2. email 중복 검사
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("이미 사용중인 이메일입니다.");
         }
 
-        // 3. DTO ➔ Entity 변환 및 조립
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
@@ -51,9 +54,6 @@ public class UserService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        // 4. DB 저장
         return userRepository.save(user);
     }
-
-    // 💡 기존 직접 구현한 login 메서드는 CustomUserDetailsService가 완벽히 대체하므로 삭제 처리 완료!
 }

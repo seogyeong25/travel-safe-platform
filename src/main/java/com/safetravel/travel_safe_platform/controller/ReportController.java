@@ -9,6 +9,9 @@ import com.safetravel.travel_safe_platform.service.ReportService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 게시글·신고 REST API 컨트롤러.
+ */
 @RestController
 @RequestMapping("/reports")
 public class ReportController {
@@ -21,7 +24,9 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    // 신고글 작성
+    /**
+     * 신고글을 작성합니다.
+     */
     @PostMapping
     public Report createReport(
             @RequestBody ReportWriteRequestDto dto
@@ -30,7 +35,9 @@ public class ReportController {
         return reportService.saveReport(dto);
     }
 
-    // 신고글 전체 조회 + 페이징
+    /**
+     * 신고글 목록을 페이징하여 조회합니다.
+     */
     @GetMapping
     public Page<ReportResponseDto> getReports(
 
@@ -41,7 +48,9 @@ public class ReportController {
         return reportService.getAllReports(page);
     }
 
-    // 신고글 수정
+    /**
+     * 신고글을 수정합니다.
+     */
     @PutMapping("/{id}")
     public Report updateReport(
             @PathVariable Long id,
@@ -51,7 +60,9 @@ public class ReportController {
         return reportService.updateReport(id, dto);
     }
 
-    // 신고글 삭제
+    /**
+     * 신고글을 삭제합니다.
+     */
     @DeleteMapping("/{id}")
     public String deleteReport(
             @PathVariable Long id

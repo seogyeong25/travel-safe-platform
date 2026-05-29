@@ -1,48 +1,39 @@
 <!DOCTYPE html>
+<!-- SAFE TRIP - 범죄 예방 가이드 (guide.js 탭·?type= 연동) -->
 <html lang="ko"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8">
-  <title>범죄 예방 가이드 - SafeTrip</title>
-  <link rel="stylesheet"
-        th:href="@{/css/index.css}">
-  <link rel="stylesheet"
-        th:href="@{/css/guide.css}">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>범죄 예방 가이드 | SAFE TRIP</title>
+  <link rel="stylesheet" th:href="@{/css/index.css}">
+  <link rel="stylesheet" th:href="@{/css/guide.css}">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-<header class="navbar">
-  <div class="logo">
-    <i data-lucide="shield-check"></i>
-    <span>SAFE TRIP</span>
-  </div>
-
-  <nav>
-    <a href="index.html">홈</a>
-    <a href="#">지역 검색</a>
-    <a href="#">안전 리포트</a>
-    <a href="#">지도</a>
-    <a href="guide.html" class="active">예방 가이드</a>
-    <a href="board.html">신고 게시판</a>
-  </nav>
-
-  <a href="login.html" class="login-btn">로그인</a>
-</header>
+<div th:replace="~{fragments/navbar :: navbar('guide')}"></div>
 
 <main class="guide-page">
 
   <aside class="guide-sidebar">
     <h3>범죄 유형 선택</h3>
 
-    <button class="tab active" data-type="theft">절도</button>
-    <button class="tab" data-type="violence">폭력</button>
-    <button class="tab" data-type="sexual">성범죄</button>
-    <button class="tab" data-type="pickpocket">소매치기</button>
-    <button class="tab" data-type="night">야간 안전</button>
-    <button class="tab" data-type="traffic">교통사고</button>
-    <button class="tab" data-type="etc">기타</button>
+    <button type="button" class="tab active" data-type="theft">절도</button>
+    <button type="button" class="tab" data-type="violence">폭력</button>
+    <button type="button" class="tab" data-type="sexual">성범죄</button>
+    <button type="button" class="tab" data-type="pickpocket">소매치기</button>
+    <button type="button" class="tab" data-type="night">야간 안전</button>
+    <button type="button" class="tab" data-type="traffic">교통 위험</button>
+    <button type="button" class="tab" data-type="etc">기타</button>
+
+    <div class="sidebar-links">
+      <p>함께 보기</p>
+      <a th:href="@{/region}">지역 검색</a>
+      <a th:href="@{/map}">치안 시설 지도</a>
+      <a th:href="@{/board}">위험 제보 게시판</a>
+    </div>
   </aside>
 
   <section class="guide-content">
@@ -52,20 +43,25 @@
       여행 중 절도 피해를 예방하기 위한 수칙입니다.
     </p>
 
+    <div class="guide-tip-banner">
+      <i data-lucide="lightbulb"></i>
+      <span>안전 리포트에서 확인한 <strong>주요 범죄 유형</strong>에 맞춰 아래 카테고리를 선택해 보세요.</span>
+    </div>
+
     <div id="guideList" class="guide-list"></div>
 
     <div class="emergency-box">
       <i data-lucide="shield-alert"></i>
-      <strong>위급 상황 발생 시 112로 신고해주세요.</strong>
+      <div>
+        <strong>위급 상황 발생 시 112에 신고해주세요.</strong>
+        <p>생명·신체에 위험이 있다면 즉시 112(경찰) · 119(소방)에 연락하세요.</p>
+      </div>
     </div>
   </section>
 
 </main>
 
-<script src="guide.js"></script>
-<script>
-  lucide.createIcons();
-</script>
+<script th:src="@{/js/guide.js}"></script>
 
 </body>
 </html>

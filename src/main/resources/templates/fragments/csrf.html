@@ -1,0 +1,5 @@
+<!-- CSRF meta (fetch 시 csrf-fetch.js에서 사용) -->
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="csrfMeta">
+    <meta name="_csrf" th:content="${_csrf.token}" th:if="${_csrf}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" th:if="${_csrf}">
+</th:block>

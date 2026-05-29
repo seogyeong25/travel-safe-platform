@@ -1,6 +1,8 @@
 <!DOCTYPE html>
+<!-- SAFE TRIP - 신고 게시판 목록 (필터·페이징) -->
 <html lang="ko"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8">
   <title>신고 게시판 - SafeTrip</title>
@@ -13,35 +15,13 @@
 </head>
 <body>
 
-<header class="navbar">
-  <div class="logo">
-    <i data-lucide="shield-check"></i>
-    <span>SAFE TRIP</span>
-  </div>
-
-  <nav>
-    <a th:href="@{/}">홈</a>
-
-    <a th:href="@{/region}">지역 검색</a>
-
-    <a th:href="@{/report}">안전 리포트</a>
-
-    <a th:href="@{/map}">지도</a>
-
-    <a th:href="@{/guide}">예방 가이드</a>
-
-    <a th:href="@{/board}" class="active">
-      신고 게시판
-    </a>
-
-    <a th:href="@{/users/login}" class="login-btn">
-      로그인
-    </a>
-  </nav>
-
-</header>
+<div th:replace="~{fragments/navbar :: navbar('board')}"></div>
 
 <main class="board-page">
+
+  <div th:if="${errorMessage}"
+       class="auth-error-banner"
+       th:text="${errorMessage}"></div>
 
   <section class="board-title">
     <div>
@@ -75,21 +55,48 @@
         <button>수상한 사람</button>
       </a>
 
+      <a th:href="@{/board(category='교통 위험')}">
+        <button>교통 위험</button>
+      </a>
+
       <a th:href="@{/board(category='기타')}">
         <button>기타</button>
-      </a>
       </a>
     </div>
 
     <form th:action="@{/board}"
           method="get"
-          class="search-box-board">
+          class="search-box-board region-search-board">
+
+      <select name="sido" id="searchSido">
+        <option value="">시/도</option>
+        <option th:each="s : ${sidoList}"
+                th:value="${s}"
+                th:text="${s}"
+                th:selected="${s == selectedSido}">
+        </option>
+      </select>
+
+      <select name="sigungu" id="searchSigungu">
+        <option value="">시군구</option>
+        <option th:each="r : ${regions}"
+                th:value="${r.sigungu}"
+                th:text="${r.sigungu}"
+                th:data-sido="${r.sido}"
+                th:selected="${r.sigungu == selectedSigungu}">
+        </option>
+      </select>
+
+      <button type="submit" title="지역 검색">
+        <i data-lucide="map-pin"></i>
+      </button>
 
       <input type="text"
              name="keyword"
-             placeholder="제목을 검색하세요">
+             placeholder="제목 검색"
+             th:value="${param.keyword}">
 
-      <button type="submit">
+      <button type="submit" title="제목 검색">
         <i data-lucide="search"></i>
       </button>
 
@@ -147,7 +154,7 @@
   <div class="pagination">
 
     <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-       th:href="@{/board(page=${i})}">
+       th:href="@{/board(page=${i}, sido=${selectedSido}, sigungu=${selectedSigungu}, keyword=${param.keyword}, category=${param.category})}">
 
       <button th:text="${i + 1}"
               th:classappend="${i == currentPage} ? 'active'">
@@ -161,6 +168,36 @@
 
 <script>
   lucide.createIcons();
+
+  const searchSido = document.getElementById("searchSido");
+  const searchSigungu = document.getElementById("searchSigungu");
+
+  if (searchSido && searchSigungu) {
+    const searchSigunguOptions = Array.from(
+      searchSigungu.querySelectorAll("option[data-sido]")
+    ).map(option => option.cloneNode(true));
+
+    function filterSearchSigungu() {
+      const selectedSido = searchSido.value;
+      const currentValue = searchSigungu.value;
+
+      searchSigungu.innerHTML = '<option value="">시군구</option>';
+
+      searchSigunguOptions.forEach(option => {
+        if (!selectedSido || option.dataset.sido === selectedSido) {
+          searchSigungu.appendChild(option.cloneNode(true));
+        }
+      });
+
+      searchSigungu.value = currentValue;
+    }
+
+    searchSido.addEventListener("change", filterSearchSigungu);
+
+    if (searchSido.value) {
+      filterSearchSigungu();
+    }
+  }
 </script>
 
 </body>

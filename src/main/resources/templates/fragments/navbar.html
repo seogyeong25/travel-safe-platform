@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!-- 공통 fragment: 상단 네비 (sec:authorize 로그인/로그아웃) -->
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<header class="navbar" th:fragment="navbar(active)">
+    <a th:href="@{/}" class="logo">
+        <i data-lucide="shield-check" class="main-logo-icon"></i>
+        <span>SAFE TRIP</span>
+    </a>
+
+    <nav class="nav-menu">
+        <a th:href="@{/}"
+           th:classappend="${active == 'home'} ? ' active' : ''">홈</a>
+        <a th:href="@{/region}"
+           th:classappend="${active == 'region'} ? ' active' : ''">지역 검색</a>
+        <a th:href="@{/report}"
+           th:classappend="${active == 'report'} ? ' active' : ''">안전 리포트</a>
+        <a th:href="@{/map}"
+           th:classappend="${active == 'map'} ? ' active' : ''">지도</a>
+        <a th:href="@{/guide}"
+           th:classappend="${active == 'guide'} ? ' active' : ''">예방 가이드</a>
+        <a th:href="@{/board}"
+           th:classappend="${active == 'board'} ? ' active' : ''">신고 게시판</a>
+    </nav>
+
+    <div class="nav-right">
+        <a th:href="@{/users/login}"
+           class="login-btn"
+           sec:authorize="!isAuthenticated()">로그인</a>
+
+        <span class="user-greeting" sec:authorize="isAuthenticated()">
+            <span sec:authentication="name"></span>님
+        </span>
+
+        <form sec:authorize="isAuthenticated()"
+              th:action="@{/users/logout}"
+              method="post"
+              class="logout-form">
+            <button type="submit" class="login-btn logout-btn">로그아웃</button>
+        </form>
+    </div>
+</header>
+
+</html>

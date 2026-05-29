@@ -1,3 +1,7 @@
+/**
+ * SAFE TRIP - report.css
+ * 안전 리포트 페이지: 점수 카드, 범죄 TOP3, 카카오 지도(경찰서), 지역 게시글 목록
+ */
 @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap');
 
 * {
@@ -155,22 +159,38 @@ body {
 
 .main-grid {
   display: grid;
-  grid-template-columns: 0.9fr 1.3fr;
+  grid-template-columns: 0.95fr 1.25fr;
   gap: 20px;
   margin-bottom: 20px;
+  align-items: stretch;
 }
 
-/* SCORE */
+/* SCORE + REGION TYPE */
 
 .score-card {
   display: flex;
+  min-height: 100%;
+}
+
+.score-card-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+.score-visual {
+  display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e8eef5;
 }
 
 .circle-wrap {
-  width: 140px;
-  height: 140px;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: conic-gradient(#2563eb 0% 74%, #dbe7ff 74% 100%);
   display: flex;
@@ -179,8 +199,8 @@ body {
 }
 
 .circle {
-  width: 96px;
-  height: 96px;
+  width: 84px;
+  height: 84px;
   background: white;
   border-radius: 50%;
   display: flex;
@@ -190,36 +210,125 @@ body {
 }
 
 .circle h2 {
-  font-size: 38px;
+  font-size: 32px;
+  line-height: 1;
   color: #062b5f;
 }
 
 .circle span {
+  font-size: 13px;
   color: #64748b;
 }
 
-.score-info p {
+.score-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.score-label {
   color: #64748b;
-  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
 .score-info h3 {
-  font-size: 28px;
-  margin-bottom: 18px;
+  font-size: 24px;
+  line-height: 1.2;
+  margin-bottom: 12px;
+  color: #0f172a;
 }
 
 .safe-badge {
-  padding: 10px 18px;
+  display: inline-block;
+  padding: 8px 14px;
   background: #dcfce7;
   color: #16a34a;
   border-radius: 999px;
+  font-size: 13px;
   font-weight: 700;
+}
+
+.region-summary {
+  flex: 1;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 20px;
+}
+
+.region-summary-placeholder p {
+  color: #94a3b8;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.region-summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.region-summary-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #475569;
+}
+
+.region-summary-title i {
+  color: #2563eb;
+  font-size: 15px;
+}
+
+.region-type-badge {
+  display: inline-block;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.region-type-badge.type-danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.region-type-badge.type-warning {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.region-type-badge.type-safe {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.region-type-badge.type-default {
+  background: #eef4ff;
+  color: #2563eb;
+}
+
+.region-type-desc {
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
 }
 
 /* MAP */
 
 .map-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 .map-top {
@@ -235,44 +344,60 @@ body {
   color: #64748b;
 }
 
-.fake-map {
-  height: 230px;
+#kakao-map {
+  width: 100%;
+  height: 320px;
   border-radius: 24px;
-  background:
-    linear-gradient(rgba(255,255,255,.7), rgba(255,255,255,.7)),
-    url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1200&auto=format&fit=crop');
-  background-size: cover;
-  position: relative;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
 }
 
-.danger-zone {
-  position: absolute;
-  width: 180px;
-  height: 180px;
-  background: radial-gradient(circle, rgba(255,59,48,.5), transparent 70%);
-  bottom: 30px;
-  right: 60px;
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
 }
 
-.marker {
-  position: absolute;
-  width: 52px;
-  height: 52px;
+.map-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
+}
+
+.legend-dot.station {
+  background: #062b5f;
+}
+
+.legend-dot.box {
+  background: #2563eb;
+}
+
+.legend-dot.post {
+  background: #38bdf8;
+}
+
+.map-empty-msg {
+  height: 320px;
+  border-radius: 24px;
+  border: 1px dashed #cbd5e1;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 20px;
-}
-
-.marker.red {
-  background: #ef4444;
-}
-
-.marker.blue {
-  background: #2563eb;
+  color: #64748b;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+  line-height: 1.6;
 }
 
 /* MINI CARD */
@@ -442,9 +567,19 @@ body {
     font-size: 32px;
   }
 
-  .score-card {
+  .score-visual {
     flex-direction: column;
     align-items: flex-start;
+    text-align: left;
+  }
+
+  .circle-wrap {
+    width: 110px;
+    height: 110px;
+  }
+
+  .circle h2 {
+    font-size: 28px;
   }
 
   .info-grid {

@@ -1,3 +1,8 @@
+/**
+ * SAFE TRIP - board.css
+ * 신고 게시판 목록: 탭 필터·지역 검색·게시글 카드·페이징
+ */
+
 .board-page {
   min-height: calc(100vh - 70px);
   background: #f4f7fb;

@@ -1,3 +1,8 @@
+/**
+ * SAFE TRIP - signup.css
+ * 회원가입 페이지 (login.css와 유사한 2단 레이아웃)
+ */
+
 .auth-page {
   min-height: calc(100vh - 70px);
   display: flex;
@@ -207,4 +212,20 @@
   .auth-box input {
     height: 44px;
   }
+}
+
+.field-error {
+  color: #b91c1c;
+  font-size: 13px;
+  margin: 4px 0 10px;
+}
+
+.auth-error-banner {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 700;
 }

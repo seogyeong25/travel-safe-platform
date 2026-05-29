@@ -1,3 +1,8 @@
+/**
+ * SAFE TRIP - board-detail.css
+ * 신고 게시글 상세 보기
+ */
+
 .detail-page {
   min-height: calc(100vh - 72px);
   background: #f4f7fb;

@@ -1,40 +1,26 @@
 <!DOCTYPE html>
+<!-- SAFE TRIP - 메인(홈): 키워드 검색, 기능 소개, 검색 후보 모달 -->
 <html lang="ko"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafeTrip</title>
+  <th:block th:replace="~{fragments/csrf :: csrfMeta}"></th:block>
   <link rel="stylesheet"
         th:href="@{/css/index.css}">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script th:src="@{/js/csrf-fetch.js}"></script>
 </head>
 <body>
 
-<header class="navbar">
-
-  <a th:href="@{/}" class="logo">
-    <i data-lucide="shield-check"></i>
-    <span>SAFE TRIP</span>
-  </a>
-
-  <nav class="nav-menu">
-    <a th:href="@{/}" class="active">홈</a>
-    <a th:href="@{/region}">지역 검색</a>
-    <a th:href="@{/report}">안전 리포트</a>
-    <a th:href="@{/map}">지도</a>
-    <a th:href="@{/guide}">예방 가이드</a>
-    <a th:href="@{/board}">신고 게시판</a>
-  </nav>
-
-  <div class="nav-right">
-    <a th:href="@{/users/login}" class="login-btn">로그인</a>
-  </div>
-
-</header>
+<!-- 공통 상단 네비게이션 -->
+<div th:replace="~{fragments/navbar :: navbar('home')}"></div>
 
 <main class="container">
 
+  <!-- 히어: 검색창·인기 키워드·퀵 정보 -->
   <section class="hero">
     <div class="hero-text">
       <p class="eyebrow">여행지 안전정보 플랫폼</p>
@@ -50,44 +36,48 @@
       </p>
 
       <div class="search-box">
-        <input type="text" placeholder="어디로 여행 가시나요?" />
-        <button>
+        <input type="text"
+               id="searchInput"
+               placeholder="어디로 여행 가시나요?"
+               aria-label="여행지 검색" />
+        <button type="button" id="searchBtn" aria-label="검색">
           <i data-lucide="search"></i>
         </button>
       </div>
 
       <div class="keywords">
         <span>인기 검색어</span>
-        <button>제주도</button>
-        <button>부산 해운대</button>
-        <button>강릉</button>
-        <button>홍대입구</button>
-        <button>경주</button>
+        <button type="button">제주도</button>
+        <button type="button">부산 해운대</button>
+        <button type="button">강릉</button>
+        <button type="button">홍대입구</button>
+        <button type="button">경주</button>
       </div>
     </div>
 
     <div class="quick-info">
-  <div>
-    <strong>지역별</strong>
-    <span>범죄 현황 분석</span>
-  </div>
+      <div>
+        <strong>지역별</strong>
+        <span>범죄 현황 분석</span>
+      </div>
 
-  <div>
-    <strong>지도 기반</strong>
-    <span>지구대.경찰서 위치</span>
-  </div>
+      <div>
+        <strong>지도 기반</strong>
+        <span>지구대.경찰서 위치</span>
+      </div>
 
-  <div>
-    <strong>맞춤형</strong>
-    <span>예방 수칙 제공</span>
-  </div>
-</div>
+      <div>
+        <strong>맞춤형</strong>
+        <span>예방 수칙 제공</span>
+      </div>
+    </div>
 
     <div class="hero-visual">
-      <img src="images/travel.png" alt="여행 일러스트" />
+      <img th:src="@{/images/travel.png}" alt="여행 일러스트" />
     </div>
   </section>
 
+  <!-- 기능 카드 4종 -->
   <section class="features">
 
     <article class="feature-card">
@@ -96,7 +86,7 @@
       </div>
       <h3>지역 안전 리포트</h3>
       <p>여행지의 범죄 현황과 안전 정보를 보기 쉽게 확인합니다.</p>
-      <a href="#">자세히 보기 →</a>
+      <a th:href="@{/region}">자세히 보기 →</a>
     </article>
 
     <article class="feature-card">
@@ -105,7 +95,7 @@
       </div>
       <h3>지도 한눈에 보기</h3>
       <p>CCTV, 경찰서, 지구대 위치를 지도 기반으로 제공합니다.</p>
-      <a href="#">자세히 보기 →</a>
+      <a th:href="@{/map}">자세히 보기 →</a>
     </article>
 
     <article class="feature-card">
@@ -114,7 +104,7 @@
       </div>
       <h3>범죄 예방 가이드</h3>
       <p>상황별 예방 수칙과 안전 행동 정보를 제공합니다.</p>
-      <a href="#">자세히 보기 →</a>
+      <a th:href="@{/guide}">자세히 보기 →</a>
     </article>
 
     <article class="feature-card">
@@ -123,16 +113,126 @@
       </div>
       <h3>신고 및 제보</h3>
       <p>위험 장소를 제보하고 사용자와 안전 정보를 공유합니다.</p>
-      <a href="#">자세히 보기 →</a>
+      <a th:href="@{/board}">자세히 보기 →</a>
     </article>
 
   </section>
 
 </main>
 
+<!-- 지역 검색 다중 후보 모달 -->
+<div id="searchModal" class="search-modal-backdrop" style="display: none;">
+  <div class="search-modal" role="dialog" aria-labelledby="searchModalTitle">
+    <h2 id="searchModalTitle">지역을 선택해주세요</h2>
+    <p id="searchModalMessage"></p>
+    <div id="searchCandidateList" class="search-candidate-list"></div>
+    <button type="button" class="search-modal-close" id="searchModalClose">닫기</button>
+  </div>
+</div>
+
 <script>
   lucide.createIcons();
-</script>
 
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const keywordBtns = document.querySelectorAll(".keywords button");
+    const searchModal = document.getElementById("searchModal");
+    const searchModalMessage = document.getElementById("searchModalMessage");
+    const searchCandidateList = document.getElementById("searchCandidateList");
+    const searchModalClose = document.getElementById("searchModalClose");
+
+    function closeModal() {
+      searchModal.style.display = "none";
+      searchCandidateList.innerHTML = "";
+    }
+
+    function openCandidateModal(message, candidates) {
+      searchModalMessage.textContent = message;
+      searchCandidateList.innerHTML = "";
+
+      candidates.forEach(candidate => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "search-candidate-btn";
+        btn.textContent = candidate.label;
+        btn.addEventListener("click", () => {
+          window.location.href = candidate.redirectUrl;
+        });
+        searchCandidateList.appendChild(btn);
+      });
+
+      searchModal.style.display = "flex";
+    }
+
+    async function handleSearch(keyword) {
+      if (!keyword || !keyword.trim()) {
+        alert("검색어를 입력해주세요!");
+        return;
+      }
+
+      try {
+        const response = await csrfFetch(
+          `/api/search?keyword=${encodeURIComponent(keyword.trim())}`
+        );
+
+        const data = await response.json();
+
+        if (data.found && data.redirectUrl) {
+          window.location.href = data.redirectUrl;
+          return;
+        }
+
+        if (data.multiple && data.candidates && data.candidates.length > 0) {
+          openCandidateModal(
+            data.message || "여러 지역이 검색되었습니다.",
+            data.candidates
+          );
+          return;
+        }
+
+        if (data.redirectUrl) {
+          const goRegion = confirm(
+            (data.message || "지역을 찾지 못했습니다.") +
+            "\n\n지역 선택 페이지로 이동할까요?"
+          );
+          if (goRegion) {
+            window.location.href = data.redirectUrl;
+          }
+          return;
+        }
+
+        alert(data.message || "검색 결과가 없습니다.");
+      } catch (error) {
+        console.error("검색 중 오류 발생:", error);
+        window.location.href = "/region";
+      }
+    }
+
+    searchBtn.addEventListener("click", () => {
+      handleSearch(searchInput.value);
+    });
+
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        handleSearch(searchInput.value);
+      }
+    });
+
+    keywordBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        handleSearch(btn.textContent);
+      });
+    });
+
+    searchModalClose.addEventListener("click", closeModal);
+
+    searchModal.addEventListener("click", (e) => {
+      if (e.target === searchModal) {
+        closeModal();
+      }
+    });
+  });
+</script>
 </body>
 </html>

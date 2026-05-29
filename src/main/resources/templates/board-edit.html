@@ -1,6 +1,8 @@
 <!DOCTYPE html>
+<!-- SAFE TRIP - 신고 게시글 수정 (작성자만 접근) -->
 <html lang="ko"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
 
@@ -23,47 +25,7 @@
 
 <body>
 
-<header class="navbar">
-
-    <a th:href="@{/}" class="logo">
-
-        <img th:src="@{/images/safe.png}"
-             alt="SAFE TRIP 로고"
-             class="main-logo">
-
-        <span>SAFE TRIP</span>
-
-    </a>
-
-    <nav class="nav-menu">
-
-        <a th:href="@{/}">홈</a>
-
-        <a th:href="@{/report}">
-            안전 리포트
-        </a>
-
-        <a th:href="@{/map}">
-            지도
-        </a>
-
-        <a th:href="@{/guide}">
-            예방 가이드
-        </a>
-
-        <a th:href="@{/board}"
-           class="active">
-            신고 게시판
-        </a>
-
-    </nav>
-
-    <a th:href="@{/users/login}"
-       class="login-btn">
-        로그인
-    </a>
-
-</header>
+<div th:replace="~{fragments/navbar :: navbar('board')}"></div>
 
 <main class="write-page">
 
@@ -108,6 +70,37 @@
                 <input type="text"
                        name="title"
                        th:value="${report.title}">
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="sido">시/도</label>
+
+                <select id="sido">
+                    <option value="">시/도 선택</option>
+                    <option th:each="s : ${sidoList}"
+                            th:value="${s}"
+                            th:text="${s}"
+                            th:selected="${report.sido != null and s == report.sido}">
+                    </option>
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="region">시/군/구</label>
+
+                <select id="region" name="regionId" required>
+                    <option value="">시군구 선택</option>
+                    <option th:each="r : ${regions}"
+                            th:value="${r.id}"
+                            th:text="${r.sigungu}"
+                            th:data-sido="${r.sido}"
+                            th:selected="${report.regionId != null and r.id == report.regionId}">
+                    </option>
+                </select>
 
             </div>
 
@@ -215,8 +208,43 @@
 
 </main>
 
-<script>
+<script th:inline="javascript">
     lucide.createIcons();
+
+    const sidoSelect = document.getElementById("sido");
+    const regionSelect = document.getElementById("region");
+    const currentRegionId = /*[[${report.regionId}]]*/ null;
+
+    const allRegionOptions = Array.from(
+        regionSelect.querySelectorAll("option[data-sido]")
+    ).map(option => option.cloneNode(true));
+
+    function filterRegions(keepValue) {
+        const selectedSido = sidoSelect.value;
+        const valueToKeep = keepValue ? String(keepValue) : regionSelect.value;
+
+        regionSelect.innerHTML = '<option value="">시군구 선택</option>';
+
+        allRegionOptions.forEach(option => {
+            if (!selectedSido || option.dataset.sido === selectedSido) {
+                regionSelect.appendChild(option.cloneNode(true));
+            }
+        });
+
+        if (valueToKeep) {
+            regionSelect.value = valueToKeep;
+        }
+    }
+
+    sidoSelect.addEventListener("change", function () {
+        filterRegions(null);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        if (sidoSelect.value) {
+            filterRegions(currentRegionId);
+        }
+    });
 </script>
 
 </body>

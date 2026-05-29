@@ -1,6 +1,8 @@
 <!DOCTYPE html>
+<!-- SAFE TRIP - 안전 리포트: 지역 통계·카카오 지도(경찰서)·지역 게시글 -->
 <html lang="ko"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
   <meta charset="UTF-8" />
@@ -9,273 +11,168 @@
 
   <title>안전 리포트 | SAFE TRIP</title>
 
-  <!-- CSS -->
+  <th:block th:replace="~{fragments/csrf :: csrfMeta}"></th:block>
+
+  <link rel="stylesheet"
+        th:href="@{/css/index.css}">
   <link rel="stylesheet"
         th:href="@{/css/report.css}">
 
-  <!-- 아이콘 -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <script th:src="@{/js/csrf-fetch.js}"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
 
-<!-- 헤더 -->
-<header class="header">
+<div th:replace="~{fragments/navbar :: navbar('report')}"></div>
 
-  <div class="logo">
-    <i class="fa-solid fa-shield-halved"></i>
-    <span>SAFE TRIP</span>
-  </div>
-
-  <nav class="nav">
-
-    <a th:href="@{/}">
-      홈
-    </a>
-
-    <a href="#">
-      지역 검색
-    </a>
-
-    <a href="#"
-       class="active">
-      안전 리포트
-    </a>
-
-    <a href="#">
-      지도
-    </a>
-
-    <a href="#">
-      예방 가이드
-    </a>
-
-    <a href="#">
-      신고 게시판
-    </a>
-
-  </nav>
-
-  <a th:href="@{/users/login}"
-     class="login-btn">
-    로그인
-  </a>
-
-</header>
-
+<!-- regionId 쿼리로 /api/reports API 호출 (하단 script) -->
 <main class="report-page">
 
-  <!-- 상단 -->
   <section class="top-banner">
 
     <div>
-
-      <p class="sub-title">
-        SAFETY REPORT
-      </p>
-
-      <h1>
-        부산 해운대구 안전 리포트
-      </h1>
-
-      <p class="desc">
+      <p class="sub-title">SAFETY REPORT</p>
+      <h1 id="report-title">지역 안전 리포트</h1>
+      <p class="desc" id="report-desc">
         범죄 현황, CCTV 위치, 치안시설 데이터를 기반으로
         여행지 안전 정보를 제공합니다.
       </p>
-
     </div>
 
-    <button class="search-btn">
+    <button type="button" class="search-btn" id="regionSearchBtn">
       다른 지역 검색
     </button>
 
   </section>
 
-  <!-- 메인 그리드 -->
   <section class="main-grid">
 
-    <!-- 안전 점수 -->
     <div class="score-card card">
 
-      <div class="circle-wrap">
+      <div class="score-card-layout">
 
-        <div class="circle">
-          <h2>74</h2>
-          <span>/100</span>
+        <div class="score-visual">
+          <div class="circle-wrap" id="score-circle-wrap">
+            <div class="circle">
+              <h2 id="safety-score">0</h2>
+              <span>/100</span>
+            </div>
+          </div>
+
+          <div class="score-info">
+            <p class="score-label">안전도 점수</p>
+            <h3 id="score-grade-text">로딩 중</h3>
+            <span class="safe-badge" id="safety-badge">안전도 분석 중</span>
+          </div>
         </div>
 
-      </div>
+        <div class="region-summary" id="region-type-section" style="display: none;">
+          <div class="region-summary-head">
+            <div class="region-summary-title">
+              <i class="fa-solid fa-map-location-dot"></i>
+              <span>지역 유형</span>
+            </div>
+            <span class="region-type-badge" id="region-type-badge"></span>
+          </div>
+          <p class="region-type-desc" id="region-type-desc"></p>
+        </div>
 
-      <div class="score-info">
-
-        <p>안전도 점수</p>
-
-        <h3>보통 단계</h3>
-
-        <span class="safe-badge">
-          안전도 보통
-        </span>
+        <div class="region-summary region-summary-placeholder" id="region-type-placeholder">
+          <p>지역 유형 정보를 불러오는 중입니다.</p>
+        </div>
 
       </div>
 
     </div>
 
-    <!-- 지도 -->
     <div class="map-card card">
 
       <div class="map-top">
-
-        <h3>위험 지역 지도</h3>
-
-        <span>
-          실시간 기반 시각화
-        </span>
-
+        <h3>치안 시설 지도</h3>
+        <span id="map-region-label">경찰서 · 지구대 · 파출소 위치</span>
       </div>
 
-      <div class="fake-map">
+      <div id="kakao-map"></div>
+      <div id="map-empty" class="map-empty-msg" style="display: none;">
+        이 지역의 경찰 시설 좌표가 없습니다.<br>
+        다른 지역을 검색해 보세요.
+      </div>
 
-        <div class="danger-zone"></div>
-
-        <div class="marker red"
-             style="top:20%; left:65%;">
-          <i class="fa-solid fa-location-dot"></i>
-        </div>
-
-        <div class="marker blue"
-             style="top:40%; left:30%;">
-          <i class="fa-solid fa-shield"></i>
-        </div>
-
-        <div class="marker blue"
-             style="top:62%; left:55%;">
-          <i class="fa-solid fa-video"></i>
-        </div>
-
-        <div class="marker red"
-             style="top:68%; left:75%;">
-          <i class="fa-solid fa-location-dot"></i>
-        </div>
-
+      <div class="map-legend">
+        <span><i class="legend-dot station"></i> 경찰서</span>
+        <span><i class="legend-dot box"></i> 지구대</span>
+        <span><i class="legend-dot post"></i> 파출소</span>
       </div>
 
     </div>
 
   </section>
 
-  <!-- 통계 카드 -->
   <section class="info-grid">
 
     <div class="mini-card">
-
       <div class="icon-box">
         <i class="fa-solid fa-video"></i>
       </div>
-
       <p>CCTV</p>
-
-      <h2>128대</h2>
-
+      <h2><span id="cctv-count">0</span>대</h2>
     </div>
 
     <div class="mini-card">
-
       <div class="icon-box">
         <i class="fa-solid fa-shield-halved"></i>
       </div>
-
       <p>경찰서 / 지구대</p>
-
-      <h2>6곳</h2>
-
+      <h2><span id="police-count">0</span>곳</h2>
     </div>
 
     <div class="mini-card">
-
       <div class="icon-box">
         <i class="fa-regular fa-message"></i>
       </div>
-
       <p>최근 신고</p>
-
-      <h2 id="report-count">
-        0건
-      </h2>
-
+      <h2 id="report-count">0건</h2>
     </div>
 
     <div class="mini-card">
-
       <div class="icon-box">
         <i class="fa-solid fa-triangle-exclamation"></i>
       </div>
-
-      <p>주의 지역</p>
-
-      <h2>4곳</h2>
-
+      <p>주의 범죄 유형</p>
+      <h2><span id="warning-count">0</span>건</h2>
     </div>
 
   </section>
 
-  <!-- 하단 -->
   <section class="bottom-grid">
 
-    <!-- 범죄 TOP -->
     <div class="crime-card card">
 
       <div class="card-title">
         <h2>주요 범죄 유형 TOP 3</h2>
       </div>
 
-      <div class="crime-list">
-
+      <div class="crime-list" id="crime-list">
         <div class="crime-item">
-
           <div class="left">
-            <span class="rank">1</span>
-            <p>절도</p>
+            <span class="rank">-</span>
+            <p>데이터 로딩 중</p>
           </div>
-
-          <strong>42%</strong>
-
+          <strong>-</strong>
         </div>
-
-        <div class="crime-item">
-
-          <div class="left">
-            <span class="rank">2</span>
-            <p>폭력</p>
-          </div>
-
-          <strong>28%</strong>
-
-        </div>
-
-        <div class="crime-item">
-
-          <div class="left">
-            <span class="rank">3</span>
-            <p>성범죄</p>
-          </div>
-
-          <strong>15%</strong>
-
-        </div>
-
       </div>
 
     </div>
 
-    <!-- 최근 신고 게시글 -->
     <div class="report-card card">
 
       <div class="card-title">
         <h2>최근 신고 게시글</h2>
       </div>
 
-      <!-- DB 데이터 출력 -->
       <div id="report-list"></div>
 
     </div>
@@ -284,90 +181,430 @@
 
 </main>
 
-<!-- JavaScript -->
+<script type="text/javascript"
+        th:src="'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapKey} + '&libraries=services&autoload=false'">
+</script>
+
 <script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const regionId = urlParams.get("regionId");
 
-  async function loadReports() {
+  let kakaoMap = null;
+  let mapOverlays = [];
+  let openInfoWindow = null;
 
-    try {
+  document.getElementById("regionSearchBtn").addEventListener("click", () => {
+    window.location.href = "/region";
+  });
 
-      // Spring 서버에 요청
-      const response = await fetch("/reports");
+  function clearMapOverlays() {
+    mapOverlays.forEach(overlay => overlay.setMap(null));
+    mapOverlays = [];
+  }
 
-      // JSON 데이터 받기
-      const reports = await response.json();
+  function markerColorByType(type) {
+    if (!type) {
+      return "#2563eb";
+    }
+    if (type.includes("경찰서")) {
+      return "#062b5f";
+    }
+    if (type.includes("지구대")) {
+      return "#2563eb";
+    }
+    return "#38bdf8";
+  }
 
-      // report-list 가져오기
-      const reportList =
-              document.getElementById("report-list");
+  function waitForKakaoMap() {
+    return new Promise((resolve, reject) => {
+      if (typeof kakao === "undefined" || !kakao.maps) {
+        reject(new Error("카카오맵 SDK 로드 실패"));
+        return;
+      }
+      kakao.maps.load(resolve);
+    });
+  }
 
-      // 신고 개수 가져오기
-      const reportCount =
-              document.getElementById("report-count");
+  function initKakaoMap(regionLabel, stations) {
+    const mapEl = document.getElementById("kakao-map");
+    const emptyEl = document.getElementById("map-empty");
 
-      // 기존 내용 비우기
-      reportList.innerHTML = "";
+    return waitForKakaoMap().then(() => {
+      mapEl.style.display = "block";
+      emptyEl.style.display = "none";
+      clearMapOverlays();
 
-      // 신고 개수 표시
-      reportCount.innerText =
-              reports.length + "건";
+      const defaultCenter = new kakao.maps.LatLng(37.566826, 126.9786567);
 
-      // 데이터가 없으면
-      if (reports.length === 0) {
+      kakaoMap = new kakao.maps.Map(mapEl, {
+        center: defaultCenter,
+        level: 5
+      });
 
-        reportList.innerHTML = `
-        
-          <div class="report-item">
-            <h4>아직 등록된 신고글이 없습니다.</h4>
-          </div>
-        
-        `;
+      const validStations = stations.filter(
+        s => s.latitude != null && s.longitude != null
+      );
 
+      if (validStations.length === 0) {
+        const geocoder = new kakao.maps.services.Geocoder();
+        geocoder.addressSearch(regionLabel, function (result, status) {
+          if (status === kakao.maps.services.Status.OK) {
+            const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+            kakaoMap.setCenter(coords);
+            kakaoMap.setLevel(6);
+          }
+        });
+        mapEl.style.display = "none";
+        emptyEl.style.display = "flex";
         return;
       }
 
-      // 반복 출력
-      reports.forEach(report => {
+      const bounds = new kakao.maps.LatLngBounds();
 
-        reportList.innerHTML += `
+      validStations.forEach(station => {
+        const position = new kakao.maps.LatLng(
+          station.latitude,
+          station.longitude
+        );
+        bounds.extend(position);
 
-          <div class="report-item">
+        const color = markerColorByType(station.type);
 
-            <h4>
-              ${report.title}
-            </h4>
-
-            <p>
-              위험도 :
-              ${report.dangerLevel}
-            </p>
-
-            <p>
-              내용 :
-              ${report.content}
-            </p>
-
-          </div>
-
+        const markerContent = document.createElement("div");
+        markerContent.className = "kakao-police-marker";
+        markerContent.style.cssText = `
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: ${color};
+          border: 2px solid white;
+          box-shadow: 0 2px 8px rgba(0,0,0,.25);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 11px;
+          font-weight: 800;
         `;
+        markerContent.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
+
+        const overlay = new kakao.maps.CustomOverlay({
+          position: position,
+          content: markerContent,
+          yAnchor: 1,
+          clickable: true
+        });
+
+        overlay.setMap(kakaoMap);
+        mapOverlays.push(overlay);
+
+        const infoContent = `
+          <div style="padding:10px 12px;font-size:12px;line-height:1.5;min-width:140px;">
+            <strong style="display:block;margin-bottom:4px;color:#062b5f;">
+              ${station.name}
+            </strong>
+            <span style="color:#64748b;">${station.type || "치안시설"}</span>
+          </div>
+        `;
+
+        const infowindow = new kakao.maps.InfoWindow({
+          content: infoContent,
+          removable: true
+        });
+
+        markerContent.addEventListener("click", function () {
+          if (openInfoWindow) {
+            openInfoWindow.close();
+          }
+          infowindow.open(kakaoMap, position);
+          openInfoWindow = infowindow;
+        });
       });
 
-    } catch (error) {
+      kakaoMap.setBounds(bounds, 40, 40, 40, 40);
 
-      console.error(
-              "신고글 불러오기 실패:",
-              error
-      );
-
-    }
-
+      if (validStations.length === 1) {
+        kakaoMap.setLevel(5);
+      }
+    }).catch(error => {
+      console.error("카카오맵 초기화 실패:", error);
+      document.getElementById("kakao-map").style.display = "none";
+      document.getElementById("map-empty").style.display = "flex";
+      document.getElementById("map-empty").innerText =
+        "지도를 불러오지 못했습니다. 카카오맵 API 키를 확인해주세요.";
+    });
   }
 
-  // 페이지 열리면 자동 실행
-  loadReports();
+  async function fetchPoliceStations(id) {
+    const response = await csrfFetch(`/api/reports/${id}/police-stations`);
+    if (!response.ok) {
+      throw new Error("경찰 시설 좌표 로드 실패");
+    }
+    return response.json();
+  }
 
+  function safeNum(value) {
+    return value || 0;
+  }
+
+  function regionTypeBadgeClass(regionType) {
+    if (!regionType) {
+      return "";
+    }
+    if (regionType.includes("범죄 집중")) {
+      return "type-danger";
+    }
+    if (regionType.includes("치안 인프라")) {
+      return "type-warning";
+    }
+    if (regionType.includes("생활 안전")) {
+      return "type-safe";
+    }
+    return "type-default";
+  }
+
+  function calcSafetyScore(data) {
+    if (data.riskScore != null && data.riskScore > 0) {
+      return Math.max(0, Math.min(100, Math.round(data.riskScore)));
+    }
+
+    const totalCrime =
+      safeNum(data.robbery) +
+      safeNum(data.murder) +
+      safeNum(data.sexualAssault) +
+      safeNum(data.theft) +
+      safeNum(data.violence);
+
+    let score = 100 - Math.floor(totalCrime / 50);
+    return Math.max(0, Math.min(100, score));
+  }
+
+  function applyScoreUI(score) {
+    document.getElementById("safety-score").innerText = score;
+    document.getElementById("score-circle-wrap").style.background =
+      `conic-gradient(#2563eb 0% ${score}%, #dbe7ff ${score}% 100%)`;
+
+    const gradeText = document.getElementById("score-grade-text");
+    const badge = document.getElementById("safety-badge");
+
+    if (score >= 70) {
+      gradeText.innerText = "안전 단계";
+      badge.innerText = "안전도 높음";
+      badge.style.background = "#dcfce7";
+      badge.style.color = "#16a34a";
+    } else if (score >= 40) {
+      gradeText.innerText = "보통 단계";
+      badge.innerText = "안전도 보통";
+      badge.style.background = "#fef9c3";
+      badge.style.color = "#ca8a04";
+    } else {
+      gradeText.innerText = "주의 단계";
+      badge.innerText = "안전도 낮음";
+      badge.style.background = "#fee2e2";
+      badge.style.color = "#dc2626";
+    }
+  }
+
+  const CRIME_GUIDE_TYPE = {
+    "절도": "theft",
+    "폭력": "violence",
+    "강도": "violence",
+    "살인": "violence",
+    "성범죄": "sexual"
+  };
+
+  function escapeHtml(text) {
+    if (text == null) return "";
+    const div = document.createElement("div");
+    div.textContent = String(text);
+    return div.innerHTML;
+  }
+
+  function renderCrimeTop3(data) {
+    const crimes = [
+      { name: "절도", count: safeNum(data.theft) },
+      { name: "폭력", count: safeNum(data.violence) },
+      { name: "강도", count: safeNum(data.robbery) },
+      { name: "살인", count: safeNum(data.murder) },
+      { name: "성범죄", count: safeNum(data.sexualAssault) }
+    ];
+
+    crimes.sort((a, b) => b.count - a.count);
+
+    const total = crimes.reduce((sum, item) => sum + item.count, 0);
+    const top3 = crimes.slice(0, 3);
+    const crimeList = document.getElementById("crime-list");
+
+    if (total === 0) {
+      crimeList.innerHTML = `
+        <div class="crime-item">
+          <div class="left">
+            <span class="rank">-</span>
+            <p>범죄 통계 없음</p>
+          </div>
+          <strong>-</strong>
+        </div>
+      `;
+      document.getElementById("warning-count").innerText = "0";
+      return;
+    }
+
+    crimeList.innerHTML = top3.map((crime, index) => {
+      const percent = Math.round((crime.count / total) * 100);
+      const guideType = CRIME_GUIDE_TYPE[crime.name] || "theft";
+      const name = escapeHtml(crime.name);
+      return `
+        <a href="/guide?type=${guideType}" class="crime-item crime-item-link">
+          <div class="left">
+            <span class="rank">${index + 1}</span>
+            <p>${name}</p>
+          </div>
+          <strong>${percent}%</strong>
+        </a>
+      `;
+    }).join("");
+
+    const warningCount = crimes.filter(c => c.count > 0).length;
+    document.getElementById("warning-count").innerText = String(warningCount);
+  }
+
+  function updateRegionUI(data) {
+    const regionLabel = `${data.sido} ${data.sigungu}`;
+
+    document.getElementById("report-title").innerText =
+      `${regionLabel} 안전 리포트`;
+
+    document.getElementById("report-desc").innerText =
+      `${regionLabel}의 범죄 현황, CCTV 위치, 치안시설 데이터를 기반으로 여행지 안전 정보를 제공합니다.`;
+
+    const typeSection = document.getElementById("region-type-section");
+    const typePlaceholder = document.getElementById("region-type-placeholder");
+    const typeBadge = document.getElementById("region-type-badge");
+    const typeDesc = document.getElementById("region-type-desc");
+
+    if (data.regionType) {
+      typeSection.style.display = "block";
+      typePlaceholder.style.display = "none";
+      typeBadge.innerText = data.regionType;
+      typeBadge.className = "region-type-badge " + regionTypeBadgeClass(data.regionType);
+      typeDesc.innerText = data.regionTypeDescription || "";
+    } else {
+      typeSection.style.display = "none";
+      typePlaceholder.style.display = "block";
+      typePlaceholder.querySelector("p").innerText =
+        "이 지역의 유형 정보가 없습니다.";
+    }
+
+    document.getElementById("map-region-label").innerText =
+      `${regionLabel} · 경찰서/지구대/파출소 ${safeNum(data.policeCount)}곳`;
+
+    document.getElementById("cctv-count").innerText =
+      safeNum(data.cctvCount).toLocaleString();
+
+    document.getElementById("police-count").innerText =
+      safeNum(data.policeCount).toLocaleString();
+
+    applyScoreUI(calcSafetyScore(data));
+    renderCrimeTop3(data);
+  }
+
+  async function fetchRegionReport(id) {
+    const response = await csrfFetch(`/api/reports/${id}`);
+
+    if (!response.ok) {
+      throw new Error("지역 리포트 로드 실패");
+    }
+
+    return response.json();
+  }
+
+  async function loadRegionPosts(id) {
+    const reportList = document.getElementById("report-list");
+    const reportCount = document.getElementById("report-count");
+
+    try {
+      const response = await csrfFetch(`/api/reports/${id}/posts`);
+
+      if (!response.ok) {
+        throw new Error("신고글 로드 실패");
+      }
+
+      const reports = await response.json();
+
+      reportList.innerHTML = "";
+      reportCount.innerText = `${reports.length}건`;
+
+      if (reports.length === 0) {
+        reportList.innerHTML = `
+          <div class="report-item">
+            <h4>아직 등록된 신고글이 없습니다.</h4>
+            <p>이 지역의 첫 신고글을 남겨보세요.</p>
+          </div>
+        `;
+        return;
+      }
+
+      reports.forEach(report => {
+        const link = document.createElement("a");
+        link.className = "report-item report-item-link";
+        link.href = `/board/${report.id}`;
+
+        const title = document.createElement("h4");
+        title.textContent = report.title || "(제목 없음)";
+
+        const danger = document.createElement("p");
+        danger.textContent = `위험도 : ${report.dangerLevel || "-"}`;
+
+        const category = document.createElement("p");
+        category.textContent = `카테고리 : ${report.category || "-"}`;
+
+        const content = document.createElement("p");
+        const preview = (report.content || "").slice(0, 80);
+        content.textContent = preview + ((report.content || "").length > 80 ? "…" : "");
+
+        link.append(title, danger, category, content);
+        reportList.appendChild(link);
+      });
+    } catch (error) {
+      console.error("신고글 불러오기 실패:", error);
+      reportCount.innerText = "0건";
+      reportList.innerHTML = `
+        <div class="report-item">
+          <h4>신고글을 불러오지 못했습니다.</h4>
+        </div>
+      `;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", async function () {
+    if (typeof lucide !== "undefined") {
+      lucide.createIcons();
+    }
+
+    if (!regionId) {
+      alert("지역을 먼저 선택해주세요.");
+      window.location.href = "/region";
+      return;
+    }
+
+    try {
+      const data = await fetchRegionReport(regionId);
+      const regionLabel = `${data.sido} ${data.sigungu}`;
+
+      updateRegionUI(data);
+
+      const stations = await fetchPoliceStations(regionId);
+      initKakaoMap(regionLabel, stations);
+
+      await loadRegionPosts(regionId);
+    } catch (error) {
+      console.error(error);
+      document.getElementById("report-title").innerText = "데이터 조회 실패";
+      document.getElementById("report-desc").innerText =
+        "지역 데이터를 불러오지 못했습니다. 다른 지역을 검색해주세요.";
+    }
+  });
 </script>
 
 </body>
 </html>
-

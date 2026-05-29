@@ -1,3 +1,7 @@
+/**
+ * SAFE TRIP (travel-safe-platform) - Gradle 빌드 스크립트
+ * Java 21, Spring Boot 3.5, MySQL, Thymeleaf, Spring Security
+ */
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.0'

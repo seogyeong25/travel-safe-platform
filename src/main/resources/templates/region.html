@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<!-- SAFE TRIP - 지역 검색: 키워드 API 검색 + 시도/시군구 직접 선택 -->
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지역 검색 | SAFE TRIP</title>
+  <th:block th:replace="~{fragments/csrf :: csrfMeta}"></th:block>
+  <link rel="stylesheet" th:href="@{/css/index.css}">
+  <link rel="stylesheet" th:href="@{/css/region.css}">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script th:src="@{/js/csrf-fetch.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar('region')}"></div>
+
+<main class="region-page">
+
+  <!-- 히어 + 키워드 검색 -->
+  <section class="region-hero">
+    <div class="region-hero-inner">
+      <p class="eyebrow">
+        <i data-lucide="map-pin"></i>
+        REGION SEARCH
+      </p>
+      <h1>어디로 떠나시나요?</h1>
+      <p class="region-lead">
+        여행지를 검색하거나 시·도 · 시·군·구를 선택하면
+        범죄 현황·CCTV·경찰 시설이 담긴 안전 리포트로 이동합니다.
+      </p>
+
+      <div class="region-search-bar">
+        <input type="text"
+               id="keywordInput"
+               placeholder="예) 제주도, 해운대, 강남, 홍대"
+               aria-label="지역 키워드 검색">
+        <button type="button" id="keywordSearchBtn" aria-label="검색">
+          <i data-lucide="search"></i>
+        </button>
+      </div>
+
+      <div class="region-keywords">
+        <span>인기 검색어</span>
+        <button type="button" data-keyword="제주도">제주도</button>
+        <button type="button" data-keyword="부산 해운대">부산 해운대</button>
+        <button type="button" data-keyword="강릉">강릉</button>
+        <button type="button" data-keyword="홍대입구">홍대입구</button>
+        <button type="button" data-keyword="경주">경주</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="keywordBanner" class="region-keyword-banner" style="display: none;">
+    <i data-lucide="info"></i>
+    <p id="keywordHint"></p>
+  </div>
+
+  <section id="quickCandidates" class="region-candidates" style="display: none;">
+    <div class="region-candidates-head">
+      <i data-lucide="list"></i>
+      <h2>검색 후보 — 원하는 지역을 선택하세요</h2>
+    </div>
+    <div id="quickCandidateList" class="search-candidate-list"></div>
+  </section>
+
+  <div class="region-divider">
+    <span>또는 시·군·구 직접 선택</span>
+  </div>
+
+  <!-- 시·도 / 시·군·구 선택 및 리포트·지도 이동 -->
+  <section class="region-picker-card">
+    <div class="region-picker-title">
+      <i data-lucide="compass"></i>
+      <h2>지역 직접 선택</h2>
+    </div>
+
+    <div class="region-picker-grid">
+      <div class="region-field">
+        <label for="sido">
+          <i data-lucide="landmark"></i>
+          시 / 도
+        </label>
+        <select id="sido">
+          <option value="">시·도를 선택하세요</option>
+          <option th:each="s : ${sidoList}"
+                  th:value="${s}"
+                  th:text="${s}">
+          </option>
+        </select>
+      </div>
+
+      <div class="region-field">
+        <label for="sigungu">
+          <i data-lucide="building-2"></i>
+          시 / 군 / 구
+        </label>
+        <select id="sigungu">
+          <option value="">시·군·구를 선택하세요</option>
+          <option th:each="r : ${regions}"
+                  th:value="${r.id}"
+                  th:text="${r.sigungu}"
+                  th:data-sido="${r.sido}"
+                  th:data-label="${r.sido + ' ' + r.sigungu}">
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div id="regionPreview" class="region-preview">
+      <div class="region-preview-icon">
+        <i data-lucide="map-pinned"></i>
+      </div>
+      <div class="region-preview-text">
+        <p class="placeholder">시·도와 시·군·구를 선택하면 미리보기가 표시됩니다</p>
+        <p class="selected-label" id="previewLabel">—</p>
+        <p class="selected-sub" id="previewSub">안전 리포트 · 지도에서 상세 정보 확인</p>
+      </div>
+    </div>
+
+    <div class="region-actions">
+      <button type="button" id="searchBtn" class="region-btn-primary" disabled>
+        <i data-lucide="shield-check"></i>
+        안전 리포트 보기
+      </button>
+      <a href="#"
+         id="mapLink"
+         class="region-btn-secondary">
+        <i data-lucide="map"></i>
+        지도에서 보기
+      </a>
+    </div>
+  </section>
+
+  <section class="region-tips">
+    <article class="region-tip-card">
+      <div class="tip-icon">
+        <i data-lucide="bar-chart-3"></i>
+      </div>
+      <h3>안전 리포트</h3>
+      <p>범죄 유형별 통계, CCTV·경찰 수, 지역 유형 설명을 한눈에 확인합니다.</p>
+    </article>
+    <article class="region-tip-card">
+      <div class="tip-icon">
+        <i data-lucide="map"></i>
+      </div>
+      <h3>지도 보기</h3>
+      <p>경찰서·지구대 실좌표와 해당 지역 신고글을 지도에서 함께 볼 수 있습니다.</p>
+    </article>
+    <article class="region-tip-card">
+      <div class="tip-icon">
+        <i data-lucide="book-open"></i>
+      </div>
+      <h3>예방 가이드</h3>
+      <p>리포트의 범죄 TOP3에서 예방 가이드로 바로 이동할 수 있습니다.</p>
+    </article>
+  </section>
+
+</main>
+
+<script th:inline="javascript">
+  lucide.createIcons();
+
+  const sidoSelect = document.getElementById("sido");
+  const sigunguSelect = document.getElementById("sigungu");
+  const searchBtn = document.getElementById("searchBtn");
+  const mapLink = document.getElementById("mapLink");
+  const regionPreview = document.getElementById("regionPreview");
+  const previewLabel = document.getElementById("previewLabel");
+  const keywordInput = document.getElementById("keywordInput");
+  const keywordSearchBtn = document.getElementById("keywordSearchBtn");
+  const keywordBanner = document.getElementById("keywordBanner");
+  const keywordHint = document.getElementById("keywordHint");
+  const quickCandidates = document.getElementById("quickCandidates");
+  const quickCandidateList = document.getElementById("quickCandidateList");
+
+  const allSigunguOptions = Array.from(
+    sigunguSelect.querySelectorAll("option[data-sido]")
+  ).map(option => option.cloneNode(true));
+
+  function updatePreview() {
+    const selected = sigunguSelect.selectedOptions[0];
+    const regionId = sigunguSelect.value;
+
+    if (regionId && selected?.dataset?.label) {
+      regionPreview.classList.add("has-selection");
+      previewLabel.textContent = selected.dataset.label;
+      searchBtn.disabled = false;
+      mapLink.href = `/map?regionId=${regionId}`;
+      mapLink.classList.add("is-active");
+    } else {
+      regionPreview.classList.remove("has-selection");
+      previewLabel.textContent = "—";
+      searchBtn.disabled = true;
+      mapLink.href = "#";
+      mapLink.classList.remove("is-active");
+    }
+  }
+
+  function filterSigungu(keepValue) {
+    const selectedSido = sidoSelect.value;
+    const valueToKeep = keepValue ? String(keepValue) : sigunguSelect.value;
+
+    sigunguSelect.innerHTML = '<option value="">시·군·구를 선택하세요</option>';
+
+    allSigunguOptions.forEach(option => {
+      if (!selectedSido || option.dataset.sido === selectedSido) {
+        sigunguSelect.appendChild(option.cloneNode(true));
+      }
+    });
+
+    if (valueToKeep) {
+      sigunguSelect.value = valueToKeep;
+    }
+
+    updatePreview();
+  }
+
+  sidoSelect.addEventListener("change", () => filterSigungu(null));
+  sigunguSelect.addEventListener("change", updatePreview);
+
+  searchBtn.addEventListener("click", function () {
+    const regionId = sigunguSelect.value;
+    if (!regionId) {
+      alert("시·도와 시·군·구를 선택해주세요.");
+      return;
+    }
+    window.location.href = "/report?regionId=" + regionId;
+  });
+
+  function showKeywordBanner(keyword) {
+    keywordHint.innerHTML =
+      `<strong>"${keyword}"</strong>(으)로 검색했습니다. 후보를 선택하거나 아래에서 직접 고르세요.`;
+    keywordBanner.style.display = "flex";
+    keywordInput.value = keyword;
+  }
+
+  function renderQuickCandidates(candidates) {
+    quickCandidateList.innerHTML = "";
+    candidates.forEach(candidate => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "search-candidate-btn";
+      btn.textContent = candidate.label;
+      btn.addEventListener("click", () => {
+        window.location.href = candidate.redirectUrl;
+      });
+      quickCandidateList.appendChild(btn);
+    });
+    quickCandidates.style.display = "block";
+    quickCandidates.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  async function runKeywordSearch(keyword) {
+    if (!keyword || !keyword.trim()) {
+      alert("검색어를 입력해주세요.");
+      keywordInput.focus();
+      return;
+    }
+
+    const q = keyword.trim();
+    showKeywordBanner(q);
+    quickCandidates.style.display = "none";
+
+    try {
+      const response = await csrfFetch(
+        `/api/search?keyword=${encodeURIComponent(q)}`
+      );
+      const data = await response.json();
+
+      if (data.found && data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+        return;
+      }
+
+      if (data.multiple && data.candidates?.length > 0) {
+        renderQuickCandidates(data.candidates);
+        return;
+      }
+
+      if (data.redirectUrl) {
+        const go = confirm(
+          (data.message || "지역을 찾지 못했습니다.") +
+          "\n\n이 페이지에서 직접 선택하시겠습니까?"
+        );
+        if (!go) {
+          window.location.href = data.redirectUrl;
+        }
+        return;
+      }
+
+      const firstOption = Array.from(allSigunguOptions).find(option =>
+        option.dataset.label && option.dataset.label.includes(q)
+      );
+
+      if (firstOption) {
+        sidoSelect.value = firstOption.dataset.sido;
+        filterSigungu(firstOption.value);
+        regionPreview.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        alert(data.message || "검색 결과가 없습니다. 직접 선택해주세요.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("검색 중 오류가 발생했습니다.");
+    }
+  }
+
+  keywordSearchBtn.addEventListener("click", () => runKeywordSearch(keywordInput.value));
+  keywordInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      runKeywordSearch(keywordInput.value);
+    }
+  });
+
+  document.querySelectorAll(".region-keywords button[data-keyword]").forEach(btn => {
+    btn.addEventListener("click", () => runKeywordSearch(btn.dataset.keyword));
+  });
+
+  async function applyKeywordFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const keyword = params.get("keyword");
+    if (!keyword) return;
+
+    await runKeywordSearch(keyword);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
+    applyKeywordFromUrl();
+    updatePreview();
+  });
+</script>
+
+</body>
+</html>
